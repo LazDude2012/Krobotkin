@@ -135,8 +135,8 @@ namespace LazDude2012.Krobotkin
                         await e.Channel.SendIsTyping();
                         await e.Channel.SendFile(@"C:\Users\lazdu\OneDrive\FULLCOMM SHARED\commie memes\approved.gif");
                         Invite inv = await fullcomm.CreateInvite(maxUses:1, withXkcd:true);
-                        await e.User.SendMessage(inv.Url);
-                        usersToKickFromBunker.Add(e.User.Id);
+                        await e.Message.MentionedUsers.First().SendMessage(inv.Url);
+                        usersToKickFromBunker.Add(e.Message.MentionedUsers.First().Id);
                     }
                 });
 
