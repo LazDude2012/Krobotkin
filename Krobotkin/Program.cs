@@ -17,7 +17,7 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "2.0.6a";
+        static string version = "2.0.6c";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -54,28 +54,31 @@ namespace LazDude2012.Krobotkin
 			if (Directory.Exists("corpus") && Directory.Exists("corpus/" + author))
 			{
 				string[] files = Directory.GetFiles("corpus/" + author);
-				foreach (string file in files)
+                int resultsTruncated = 0;
+                foreach (string file in files)
 				{
 					string fullFileText = File.ReadAllText(file);
 					char fullStop = '.';
 					string[] fileLines = fullFileText.Split(fullStop);
 					foreach (string line in fileLines)
 					{
-						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase)) {
-							output += file.Substring(0, file.LastIndexOf(".", StringComparison.Ordinal)) + ": " + line + "\r\n";
-
-						}
+						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase))
+                        {							
+                            if (output.Length > 900)
+                            {
+                                ++resultsTruncated;
+                            }
+                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + "\n";
+                        }
 					}
+                    
 
 				}
+                if (resultsTruncated != 0) output += $"{resultsTruncated} more results were found but omitted for space.";
 			}
 			else
 			{
 					output = "Sorry, Krobotkin has no text for " + author;
-				}
-			if (output.Length > 1000)
-			{
-				output = output.Substring(0, 1000) + "...matches truncated";
 			}
 			return output;
 		}
@@ -130,11 +133,12 @@ namespace LazDude2012.Krobotkin
 					{
 						String phrase = e.Message.Text.Substring(11);
 						String results = findText(phrase, "kropotkin");
-						await e.Channel.SendMessage(results);
+                        if (results == "") await e.Channel.SendMessage("None found.");
+						else await e.Channel.SendMessage(results);
 					}
 					else
 					{
-						await e.Channel.SendMessage("Speak to Me!");
+						await e.Channel.SendMessage("Command requires a search parameter.");
 					}
 
 				}
