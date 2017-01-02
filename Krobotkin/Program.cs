@@ -10,13 +10,14 @@ using Discord.Commands;
 using System.IO;
 using System.Drawing;
 using ImageProcessor.Imaging;
-
+using System.Text.RegularExpressions;
+            
 namespace LazDude2012.Krobotkin
 {
     class Krobotkin
     {
         
-        static string version = "v2.0.5c";
+        static string version = "2.0.6a";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -46,6 +47,38 @@ namespace LazDude2012.Krobotkin
 
             return output;
         }
+		private string findText(string text, string author)
+		{
+			string output = "";
+
+			if (Directory.Exists("corpus") && Directory.Exists("corpus/" + author))
+			{
+				string[] files = Directory.GetFiles("corpus/" + author);
+				foreach (string file in files)
+				{
+					string fullFileText = File.ReadAllText(file);
+					char fullStop = '.';
+					string[] fileLines = fullFileText.Split(fullStop);
+					foreach (string line in fileLines)
+					{
+						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase)) {
+							output += file.Substring(0, file.LastIndexOf(".", StringComparison.Ordinal)) + ": " + line + "\r\n";
+
+						}
+					}
+
+				}
+			}
+			else
+			{
+					output = "Sorry, Krobotkin has no text for " + author;
+				}
+			if (output.Length > 1000)
+			{
+				output = output.Substring(0, 1000) + "...matches truncated";
+			}
+			return output;
+		}
 
         private Config config = new Config();
 
@@ -90,6 +123,21 @@ namespace LazDude2012.Krobotkin
                     String fwidth = convertToFullwidth(msg);
                     await e.Channel.SendMessage(fwidth);
                 }
+				if (e.Message.Text.StartsWith("!kropotkin"))
+				{
+					await e.Channel.SendIsTyping();
+					if (e.Message.Text.Length >= 12)
+					{
+						String phrase = e.Message.Text.Substring(11);
+						String results = findText(phrase, "kropotkin");
+						await e.Channel.SendMessage(results);
+					}
+					else
+					{
+						await e.Channel.SendMessage("Speak to Me!");
+					}
+
+				}
                 if(e.Message.Text.StartsWith("!mball "))
                 {
                     await e.Channel.SendIsTyping();
