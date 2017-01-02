@@ -16,7 +16,7 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "v2.0.4";
+        static string version = "v2.0.5c";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -134,8 +134,9 @@ namespace LazDude2012.Krobotkin
                         Server fullcomm = _client.GetServer(193389057210843137);
                         await e.Channel.SendIsTyping();
                         await e.Channel.SendFile(@"C:\Users\lazdu\OneDrive\FULLCOMM SHARED\commie memes\approved.gif");
-                        Invite inv = await fullcomm.CreateInvite(maxUses:1, withXkcd:true);
+                        Invite inv = await fullcomm.CreateInvite(maxUses:1);
                         await e.Message.MentionedUsers.First().SendMessage(inv.Url);
+                        await e.User.SendMessage(inv.Url);
                         usersToKickFromBunker.Add(e.Message.MentionedUsers.First().Id);
                     }
                 });
@@ -294,15 +295,48 @@ namespace LazDude2012.Krobotkin
 
             _client.GetService<CommandService>().CreateCommand("purge")
                 .Description("Clears messages from a channel.")
-                .Parameter("number")
+                .Parameter("number", type: ParameterType.Required)
+                .Parameter("user", ParameterType.Optional)
                 .Do(async e =>
                 {
                     if (IsModerator(e.User, e.Server))
                     {
                         var purgemessages = await e.Channel.DownloadMessages(Int32.Parse(e.Args[0]) + 1);
-                        await e.Channel.DeleteMessages(purgemessages); 
+                        if(e.GetArg("user") == "")
+                        await e.Channel.DeleteMessages(purgemessages);
+                        else
+                        {
+                            foreach(Message msg in purgemessages)
+                            {
+                                if (msg.User == e.Message.MentionedUsers.First()) await msg.Delete();
+                            }
+                        } 
                     }
+                    await e.Message.Delete();
                     LogToCabal($"User {e.User.Name} purged {e.GetArg("number")} messages in #{e.Channel.Name}", e.Server);
+                });
+
+            _client.GetService<CommandService>().CreateCommand("delet")
+                .Description("Clears messages from a channel.")
+                .Parameter("number")
+                .Parameter("user", ParameterType.Optional)
+                .Do(async e =>
+                {
+                    if (IsModerator(e.User, e.Server))
+                    {
+                        var purgemessages = await e.Channel.DownloadMessages(Int32.Parse(e.Args[0]) + 1);
+                        if (e.GetArg("user") == "")
+                            await e.Channel.DeleteMessages(purgemessages);
+                        else
+                        {
+                            foreach (Message msg in purgemessages)
+                            {
+                                if (msg.User == e.Message.MentionedUsers.First()) await msg.Delete();
+                            }
+                        }
+                    }
+                    await e.Message.Delete();
+                    LogToCabal($"User {e.User.Name} delet'd {e.GetArg("number")} messages in #{e.Channel.Name}", e.Server);
                 });
 
             _client.GetService<CommandService>().CreateGroup("blacklist", bgp =>
@@ -316,6 +350,7 @@ namespace LazDude2012.Krobotkin
                     {
                         await e.Channel.SendMessage(word);
                     }
+                    await e.Channel.SendMessage("++++++++++++++++++ BLACKLIST ENDS +++++++++++++++++++");
                 });
                 bgp.CreateCommand("add")
                 .Parameter("word")
@@ -481,7 +516,7 @@ namespace LazDude2012.Krobotkin
                 ifact.Load("welcome.jpg");
                 ifact.Overlay(ilay);
                 System.Drawing.Color yellow = System.Drawing.Color.FromArgb(208,190,25);
-                TextLayer uname = new TextLayer { Position = new Point(108, 512), FontFamily = new FontFamily("TW Cen MT"), FontSize = 54, Text = user.Nickname, FontColor = yellow };
+                TextLayer uname = new TextLayer { Position = new Point(108, 512), FontFamily = new FontFamily("TW Cen MT"), FontSize = 30, Text = user.Nickname, FontColor = yellow };
                 ifact.Watermark(uname);
                 ifact.Save(outstream);
             }
@@ -511,7 +546,7 @@ namespace LazDude2012.Krobotkin
             {
                 try
                 {
-                    await _client.GetServer(193389057210843137).GetUser(userId).Kick();
+                    await _client.GetServer(248993874666586142).GetUser(userId).Kick();
                 }
                 catch(Exception ex)
                 {
