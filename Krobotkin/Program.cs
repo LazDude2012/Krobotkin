@@ -17,7 +17,7 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "2.0.6c";
+        static string version = "2.0.7c";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
