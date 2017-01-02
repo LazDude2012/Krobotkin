@@ -58,7 +58,7 @@ namespace LazDude2012.Krobotkin
                 foreach (string file in files)
 				{
 					string fullFileText = File.ReadAllText(file);
-					char fullStop = '.';
+					char[] fullStop = { '.', '!', '?', ';'};
 					string[] fileLines = fullFileText.Split(fullStop);
 					foreach (string line in fileLines)
 					{
@@ -68,7 +68,7 @@ namespace LazDude2012.Krobotkin
                             {
                                 ++resultsTruncated;
                             }
-                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + "\n";
+                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' })+1, (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + "\n";
                         }
 					}
                     
