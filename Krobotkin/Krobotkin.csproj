@@ -93,6 +93,21 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="corpus\kropotkin\Advice to Those About to Emigrate.txt" />
+    <None Include="corpus\kropotkin\Declaration to the Tribunal of Lyons.txt" />
+    <None Include="corpus\kropotkin\The Paris Commune.txt" />
+    <None Include="corpus\kropotkin\Anarchism-Its Philosophy and Ideal.txt" />
+    <None Include="corpus\kropotkin\Anarchism.txt" />
+    <None Include="corpus\kropotkin\Anarchist Morality.txt" />
+    <None Include="corpus\kropotkin\Communism and Anarchy.txt" />
+    <None Include="corpus\kropotkin\Mutual Aid-A Factor of Evolution.txt" />
+    <None Include="corpus\kropotkin\Peter Kropotkin%27s Last Letter.txt" />
+    <None Include="corpus\kropotkin\Proposed Communist Settlement.txt" />
+    <None Include="corpus\kropotkin\The Effects of Persecution.txt" />
+    <None Include="corpus\kropotkin\The Russian Revolution and the Soviet Government.txt" />
+    <None Include="corpus\kropotkin\The State-Its Historic Role.txt" />
+    <None Include="corpus\kropotkin\The Wage System.txt" />
+    <None Include="corpus\kropotkin\War!.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
