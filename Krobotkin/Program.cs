@@ -68,7 +68,8 @@ namespace LazDude2012.Krobotkin
                             {
                                 ++resultsTruncated;
                             }
-                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + "\n";
+                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), 
+                                (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + ".\n";
                         }
 					}
                     
