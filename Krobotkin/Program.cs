@@ -17,7 +17,7 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "2.0.6c";
+        static string version = "2.0.8a";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -47,30 +47,44 @@ namespace LazDude2012.Krobotkin
 
             return output;
         }
-		private string findText(string text, string author)
+		private string findText(string text, string author, bool limitOne)
 		{
 			string output = "";
 
 			if (Directory.Exists("corpus") && Directory.Exists("corpus/" + author))
 			{
+				Random rnd = new System.Random();
 				string[] files = Directory.GetFiles("corpus/" + author);
+				files.OrderBy(x => rnd.Next()).ToArray();
                 int resultsTruncated = 0;
                 foreach (string file in files)
 				{
 					string fullFileText = File.ReadAllText(file);
-					char fullStop = '.';
+					char[] fullStop = { '.', '!', '?', ';'};
 					string[] fileLines = fullFileText.Split(fullStop);
+					fileLines.OrderBy(x => rnd.Next()).ToArray();
 					foreach (string line in fileLines)
 					{
 						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase))
-                        {							
-                            if (output.Length > 900)
-                            {
-                                ++resultsTruncated;
-                            }
-                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), 
-                                (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + ".\n";
-                        }
+                        {
+							if (output.Length > 900)
+							{
+								++resultsTruncated;
+							}
+							else {
+								output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }) + 1, (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ', '\r', '\n', '\t') + "\n";
+								if (limitOne)
+								{
+									break;
+								}
+							}
+
+                        } 
+
+					}
+					if (limitOne)
+					{
+						break;
 					}
                     
 
@@ -133,8 +147,24 @@ namespace LazDude2012.Krobotkin
 					if (e.Message.Text.Length >= 12)
 					{
 						String phrase = e.Message.Text.Substring(11);
-						String results = findText(phrase, "kropotkin");
+						String results = findText(phrase, "kropotkin", false);
                         if (results == "") await e.Channel.SendMessage("None found.");
+						else await e.Channel.SendMessage(results);
+					}
+					else
+					{
+						await e.Channel.SendMessage("Command requires a search parameter.");
+					}
+
+				}
+				if (e.Message.Text.StartsWith("!8ball"))
+				{
+					await e.Channel.SendIsTyping();
+					if (e.Message.Text.Length >= 8)
+					{
+						String author = e.Message.Text.Substring(7);
+						String results = findText("*.",author, true);
+						if (results == "") await e.Channel.SendMessage("None found.");
 						else await e.Channel.SendMessage(results);
 					}
 					else
