@@ -17,7 +17,7 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "2.0.8a";
+        static string version = "2.0.9a";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -55,14 +55,14 @@ namespace LazDude2012.Krobotkin
 			{
 				Random rnd = new System.Random();
 				string[] files = Directory.GetFiles("corpus/" + author);
-				files.OrderBy(x => rnd.Next()).ToArray();
+				files = files.OrderBy(x => rnd.Next()).ToArray();
                 int resultsTruncated = 0;
                 foreach (string file in files)
 				{
 					string fullFileText = File.ReadAllText(file);
 					char[] fullStop = { '.', '!', '?', ';'};
 					string[] fileLines = fullFileText.Split(fullStop);
-					fileLines.OrderBy(x => rnd.Next()).ToArray();
+					fileLines = fileLines.OrderBy(x => rnd.Next()).ToArray();
 					foreach (string line in fileLines)
 					{
 						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase))
@@ -149,6 +149,22 @@ namespace LazDude2012.Krobotkin
 						String phrase = e.Message.Text.Substring(11);
 						String results = findText(phrase, "kropotkin", false);
                         if (results == "") await e.Channel.SendMessage("None found.");
+						else await e.Channel.SendMessage(results);
+					}
+					else
+					{
+						await e.Channel.SendMessage("Command requires a search parameter.");
+					}
+
+				}
+				if (e.Message.Text.StartsWith("!posadas"))
+				{
+					await e.Channel.SendIsTyping();
+					if (e.Message.Text.Length >= 10)
+					{
+						String phrase = e.Message.Text.Substring(9);
+						String results = findText(phrase, "posadas", false);
+						if (results == "") await e.Channel.SendMessage("None found.");
 						else await e.Channel.SendMessage(results);
 					}
 					else
