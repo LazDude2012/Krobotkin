@@ -23,7 +23,7 @@ namespace LazDude2012.Krobotkin
 
         private DiscordClient _client;
 
-        private Timer morrowindTimer = new Timer();
+        private Timer hourlyTimer = new Timer();
 
         private List<ulong> usersToKickFromBunker = new List<ulong>();
         
@@ -104,26 +104,29 @@ namespace LazDude2012.Krobotkin
         {
             _client = new DiscordClient();
 
-
-            using (FileStream fs = new FileStream("config.xml",FileMode.OpenOrCreate))
-            {
-                XmlSerializer reader = new XmlSerializer(typeof(Config));
-                config = (Config)reader.Deserialize(fs); 
+            if(!File.Exists("config.xml")) {
+                File.Copy("default_config.xml", "config.xml");
             }
-           
-            morrowindTimer.Interval = 3600000;
-            morrowindTimer.Elapsed += MorrowindTimer_Elapsed;
-            morrowindTimer.AutoReset = true;
-            morrowindTimer.Start();
+            using (FileStream fs = new FileStream("config.xml", FileMode.OpenOrCreate)) {
+                XmlSerializer reader = new XmlSerializer(typeof(Config));
+                config = (Config)reader.Deserialize(fs);
+            }
+
+
             _client.UserJoined += _client_UserJoined;
-            _client.MessageReceived += async (s, e) =>
-            {
-                if(!startedup)
-                {
-                    Channel general = _client.GetChannel(257617086988288001);
+            _client.Ready += async (s, e) => {
+                hourlyTimer.Interval = 3600000;
+                hourlyTimer.Elapsed += HourlyTimer_Elapsed;
+                hourlyTimer.AutoReset = true;
+                hourlyTimer.Start();
+                foreach (Server server in _client.Servers) {
+                    Channel general = server.DefaultChannel;
                     await general.SendMessage($"Krobotkin {version} initialised.");
                     startedup = true;
                 }
+            };
+            _client.MessageReceived += async (s, e) =>
+            {
                 foreach(String word in config.Blacklist)
                 {
                     if (e.Message.Text.ToLower().Contains(word) && !e.User.IsBot && !IsModerator(e.User, e.Server))
@@ -625,22 +628,25 @@ namespace LazDude2012.Krobotkin
             LogToCabal($"User {user} joined.", _client.GetServer(193389057210843137));
         }
 
-        private async void MorrowindTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Channel selfiedarity = _client.GetChannel(206432708581261312);
-            Message[] buffer = await selfiedarity.DownloadMessages(100);
-            int messagesRemoved = 0;
-            foreach(Message m in buffer)
-            {
-                if (m.Attachments.Length != 0)
-                {
-                    await m.Delete();
-                    messagesRemoved++;
+            if(selfiedarity != null) {
+                Message[] buffer = await selfiedarity.DownloadMessages(100);
+                int messagesRemoved = 0;
+                foreach (Message m in buffer) {
+                    if (m.Attachments.Length != 0) {
+                        await m.Delete();
+                        messagesRemoved++;
+                    }
                 }
+                if (messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(193389057210843137));
             }
-            if(messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(193389057210843137));
-            Channel general = _client.GetChannel(257617086988288001);
-            await general.SendMessage(config.hourlyReminders[new Random().Next() % config.hourlyReminders.Count]);
+
+            foreach(Server server in _client.Servers) {
+                await server.DefaultChannel.SendMessage(config.hourlyReminders[new Random().Next() % config.hourlyReminders.Count]);
+            }
+
             foreach(ulong userId in usersToKickFromBunker)
             {
                 try
