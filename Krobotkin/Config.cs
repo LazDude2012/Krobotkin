@@ -10,10 +10,8 @@ namespace LazDude2012.Krobotkin
     public class Config
     {
         public List<String> Blacklist;
-        public List<ConfigRole> moderatorRoles;
-        public List<ConfigRole> trustedRoles;
+        public List<ConfigRole> roles;
         public List<EchoCommand> echoCommands;
-        public List<ConfigRole> colorisationIgnoreRoles;
         public List<String> hourlyReminders;
         public String bot_token;
         [XmlIgnore]
@@ -78,8 +76,10 @@ namespace LazDude2012.Krobotkin
     }
     public class ConfigRole
     {
+        public string name;
         public ulong server_id; 
-        public ulong role_id;       
+        public ulong role_id;
+        public int trust_level; //0 for users, 1 for trusted users, 2 for mods
     }
     public class EchoCommand
     {

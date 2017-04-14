@@ -17,13 +17,13 @@ namespace LazDude2012.Krobotkin
     class Krobotkin
     {
         
-        static string version = "2.0.6c";
+        static string version = "2.1";
         static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
         private DiscordClient _client;
 
-        private Timer morrowindTimer = new Timer();
+        private Timer hourlyTimer = new Timer();
 
         private List<ulong> usersToKickFromBunker = new List<ulong>();
         
@@ -58,8 +58,8 @@ namespace LazDude2012.Krobotkin
                 foreach (string file in files)
 				{
 					string fullFileText = File.ReadAllText(file);
-					char fullStop = '.';
-					string[] fileLines = fullFileText.Split(fullStop);
+                    char[] fullStop = { '.', '!', '?', ';' };
+                    string[] fileLines = fullFileText.Split(fullStop);
 					foreach (string line in fileLines)
 					{
 						if (Regex.IsMatch(line, text, RegexOptions.IgnoreCase))
@@ -68,8 +68,8 @@ namespace LazDude2012.Krobotkin
                             {
                                 ++resultsTruncated;
                             }
-                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }), 
-                                (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }))) + ": " + line.Trim(' ','\r','\n','\t') + ".\n";
+                            else output += file.Substring(file.LastIndexOfAny(new char[] { '\\', '/' }) + 1, 
+                                (file.LastIndexOf(".", StringComparison.Ordinal) - file.LastIndexOfAny(new char[] { '\\', '/' }) -1)) + ": " + line.Trim(' ', '\r', '\n', '\t') + "\n";
                         }
 					}
                     
@@ -86,10 +86,16 @@ namespace LazDude2012.Krobotkin
 
         private Config config = new Config();
 
+        /********************   IMPORTANT CHANNEL IDs ****************************/
+        private ulong primary_server_id = 193389057210843137;
+        private ulong mainchannel_id = 276394952660090881;
+        private ulong moderation_log_id = 243537594393034754;
+        private ulong photo_delete_channel_id = 276395301881905162;
+
+
         public void Start()
         {
             _client = new DiscordClient();
-
 
             using (FileStream fs = new FileStream("config.xml",FileMode.OpenOrCreate))
             {
@@ -97,22 +103,22 @@ namespace LazDude2012.Krobotkin
                 config = (Config)reader.Deserialize(fs); 
             }
            
-            morrowindTimer.Interval = 3600000;
-            morrowindTimer.Elapsed += MorrowindTimer_Elapsed;
-            morrowindTimer.AutoReset = true;
-            morrowindTimer.Start();
+            hourlyTimer.Interval = 3600000;
+            hourlyTimer.Elapsed += MorrowindTimer_Elapsed;
+            hourlyTimer.AutoReset = true;
+            hourlyTimer.Start();
             _client.UserJoined += _client_UserJoined;
             _client.MessageReceived += async (s, e) =>
             {
                 if(!startedup)
                 {
-                    Channel general = _client.GetChannel(257617086988288001);
+                    Channel general = _client.GetChannel(mainchannel_id);
                     await general.SendMessage($"Krobotkin {version} initialised.");
                     startedup = true;
                 }
                 foreach(String word in config.Blacklist)
                 {
-                    if (e.Message.Text.ToLower().Contains(word) && !e.User.IsBot && !IsModerator(e.User, e.Server))
+                    if (e.Message.Text.ToLower().Contains(word) && !e.User.IsBot && GetPermissionLevel(e.User, e.Server) < 2)
                     {
                         LogToCabal($"User {e.User.Name} used blacklisted word {word} in channel #{e.Channel.Name}. Message was as follows: \n {e.Message}", e.Server);
                         await e.Channel.DeleteMessages(new Message[] { e.Message });
@@ -162,12 +168,24 @@ namespace LazDude2012.Krobotkin
                 }
                 if(e.Message.Text.ToLower() == "ayy")
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User,e.Server) > 0)
                     {
                         await e.Channel.SendIsTyping();
                         await e.Channel.SendFile("lmao.gif"); 
                     }
                 }
+                if (e.Message.Text.ToLower() == "debug init")
+                    if (GetPermissionLevel(e.User, e.Server) > 2)
+                    {
+                        await e.Channel.SendMessage("Debug information printed; config file initialized. All role permissions reset.");
+                        foreach(Server serv in _client.Servers)
+                        {
+                            foreach(Role r in serv.Roles)
+                            {
+                                config.roles.Add(new ConfigRole { name = $"{serv.Name} -> {r.Name}", role_id = r.Id, server_id = serv.Id, trust_level = 0 });
+                            }
+                        }
+                    }
             };
 
             #region Commands
@@ -184,7 +202,7 @@ namespace LazDude2012.Krobotkin
                 {
                     if(e.Server.Id == 248993874666586142) // bunker entrance
                     {
-                        Server fullcomm = _client.GetServer(193389057210843137);
+                        Server fullcomm = _client.GetServer(primary_server_id);
                         await e.Channel.SendIsTyping();
                         await e.Channel.SendFile(@"C:\Users\lazdu\OneDrive\FULLCOMM SHARED\commie memes\approved.gif");
                         Invite inv = await fullcomm.CreateInvite(maxUses:1);
@@ -201,7 +219,7 @@ namespace LazDude2012.Krobotkin
                             .Parameter("nick")
                             .Do(async e =>
                             {
-                                if (IsModerator(e.User,e.Server))
+                                if (GetPermissionLevel(e.User, e.Server) > 1)
                                 {
                                     User user = e.Server.FindUsers(e.GetArg("user")).First();
                                     await user.Edit(nickname: e.GetArg("nick")); 
@@ -212,36 +230,19 @@ namespace LazDude2012.Krobotkin
                 .Hide()
                 .Do(e =>
                {
-                   if (e.User.Id == 159017676662898696) //LazDude2012
-                    {
+                   if (GetPermissionLevel(e.User, e.Server) > 2)
+                   {
                        _client.Disconnect();
                        throw new Exception();
                    }
                });
-
-            _client.GetService<CommandService>().CreateCommand("listroles")
-                .Hide()
-                .Do(e =>
-                {
-                    if (e.User.Id == 159017676662898696) //LazDude2012
-                    {
-                        foreach (Server s in _client.Servers)
-                        {
-                            foreach (Role r in s.Roles)
-                            {
-                                if(r.Name != "@everyone")
-                                e.User.SendMessage($"{s.Name}->{r.Name} = {r.Id}");
-                            }
-                        }
-                    }
-                });
 
             _client.GetService<CommandService>().CreateCommand("testwelcome")
                 .Hide()
                 .Parameter("user")
                 .Do(e =>
                 {
-                    if (e.User.Id == 159017676662898696)
+                    if (GetPermissionLevel(e.User,e.Server)>2)
                     {
                         DisplayWelcomeMessage(e.Message.MentionedUsers.First());
                     }
@@ -256,6 +257,47 @@ namespace LazDude2012.Krobotkin
                     });
             }
 
+            _client.GetService<CommandService>().CreateGroup("permissions", pgp =>
+             {
+                 pgp.CreateCommand("check")
+                 .Description("Informs a user of their permission level.")
+                 .Do(e =>
+                 {
+                     int perms = GetPermissionLevel(e.User, e.Server);
+                     switch (perms)
+                     {
+                         case 0:
+                             e.Channel.SendMessage("You have :couch: NORMAL USER :couch: permissions.");
+                             break;
+                         case 1:
+                             e.Channel.SendMessage("You have :shield: TRUSTED USER :shield: permissions.");
+                             break;
+                         case 2:
+                             e.Channel.SendMessage("You have :zap: MODERATOR :zap: permissions.");
+                             break;
+                         case 3:
+                             e.Channel.SendMessage("You are a :tools: :zap: BOT WIZARD :zap: :tools:.");
+                             break;
+                     }
+                 });
+                 pgp.CreateCommand("set")
+                 .Parameter("role")
+                 .Parameter("level")
+                 .Description("Sets a user's permission level.")
+                 .Do(e =>
+                 {
+                     if (GetPermissionLevel(e.User, e.Server) > Int32.Parse(e.GetArg("level")))
+                     {
+                         Role r = e.Server.FindRoles(e.GetArg("role")).First();
+                         foreach (ConfigRole cr in config.roles)
+                         {
+                             if (cr.role_id == r.Id) cr.trust_level = Int32.Parse(e.GetArg("level"));
+                         }
+                     }
+                     Reserialise();
+                 });
+             });
+
             _client.GetService<CommandService>().CreateGroup("echo", egp =>
             {
                 egp.CreateCommand("add")
@@ -263,23 +305,43 @@ namespace LazDude2012.Krobotkin
                 .Parameter("response")
                 .Do(e =>
                 {
-                    EchoCommand ec = new EchoCommand { challenge = e.Args[0], response = e.Args[1] };
-                    config.echoCommands.Add(ec);
-                    _client.GetService<CommandService>().CreateCommand(ec.challenge)
-                    .Do(async f =>
+                    if (GetPermissionLevel(e.User, e.Server) > 0)
                     {
-                        await f.Channel.SendMessage(ec.response);
-                    });
-                    Reserialise();
+                        EchoCommand ec = new EchoCommand { challenge = e.Args[0], response = e.Args[1] };
+                        config.echoCommands.Add(ec);
+                        _client.GetService<CommandService>().CreateCommand(ec.challenge)
+                        .Do(async f =>
+                        {
+                            await f.Channel.SendMessage(ec.response);
+                        });
+                        Reserialise(); 
+                    }
+                    else
+                    {
+                        e.Channel.SendMessage("Sorry, you don't have permission to do that.");
+                    }
                 });
                 egp.CreateCommand("list")
                 .Do(async e =>
                 {
-                    Channel userdm = await e.User.CreatePMChannel();
-                    await userdm.SendIsTyping();
-                    await userdm.SendMessage("ECHO LIST: ");
-                    foreach (EchoCommand ec in config.echoCommands)
-                        await userdm.SendMessage($"{ec.challenge} :> {ec.response}");
+                    int progress = 1;
+                    Message compiling = await e.Channel.SendMessage($"Please wait, compiling echo list. :clock{progress}:");
+                    StreamWriter sw = new StreamWriter("echolist.html", false);
+                    sw.Write("<html>\n<body>\n<h1>ECHO LIST</h1>\n");
+                    foreach(EchoCommand ec in config.echoCommands)
+                    {
+                        if (ec.response.StartsWith("http"))
+                        {
+                            sw.WriteLine($"<p>{ec.challenge} :&gt; <a href='{ec.response}'> link </a> </p><br/>");
+                        }
+                        else sw.WriteLine($"<p>{ec.challenge} :&gt; {ec.response}</p><br/>");
+                        progress = (progress == 12 ? 1 : progress + 1);
+                        await compiling.Edit($"Please wait, compiling echo list. :clock{progress}:");
+                    }
+                    sw.Write("</body>");
+                    sw.Close();
+                    await e.Channel.SendMessage("List compiled! :robot: :tools:");
+                    await e.Channel.SendFile("echolist.html");
                 });
                 egp.CreateCommand("remove")
                 .Parameter("challenge")
@@ -311,7 +373,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("user")
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User, e.Server) > 1)
                     {
                         String usersKicked = "";
                         foreach (User user in e.Message.MentionedUsers)
@@ -331,7 +393,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("user")
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User, e.Server) > 1)
                     {
                         String usersBanned = "";
                         foreach (User user in e.Message.MentionedUsers)
@@ -352,7 +414,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("user", ParameterType.Optional)
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User, e.Server) > 1)
                     {
                         var purgemessages = await e.Channel.DownloadMessages(Int32.Parse(e.Args[0]) + 1);
                         if(e.GetArg("user") == "")
@@ -375,7 +437,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("user", ParameterType.Optional)
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User, e.Server) > 1)
                     {
                         var purgemessages = await e.Channel.DownloadMessages(Int32.Parse(e.Args[0]) + 1);
                         if (e.GetArg("user") == "")
@@ -387,8 +449,9 @@ namespace LazDude2012.Krobotkin
                                 if (msg.User == e.Message.MentionedUsers.First()) await msg.Delete();
                             }
                         }
+                        await e.Message.Delete();
                     }
-                    await e.Message.Delete();
+                    
                     LogToCabal($"User {e.User.Name} delet'd {e.GetArg("number")} messages in #{e.Channel.Name}", e.Server);
                 });
 
@@ -409,7 +472,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("word")
                 .Do(e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User, e.Server) > 1)
                     {
                         config.Blacklist.Add(e.GetArg("word"));
                         LogToCabal($"User {e.User} added the word {e.Args[0]} to the blacklist.", e.Server);
@@ -420,7 +483,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("word")
                 .Do(e =>
                 {
-                    if(IsModerator(e.User,e.Server))
+                    if(GetPermissionLevel(e.User,e.Server) > 1)
                     {
                         config.Blacklist.Remove(e.Args[0]);
                         LogToCabal($"User {e.User} removed the word {e.Args[0]} from the blacklist.", e.Server);
@@ -433,7 +496,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("filename")
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User,e.Server))
+                    if (GetPermissionLevel(e.User,e.Server) > 1)
                     {
                         await e.Channel.SendIsTyping();
                         try
@@ -452,7 +515,7 @@ namespace LazDude2012.Krobotkin
                 .Parameter("filename")
                 .Do(async e =>
                 {
-                    if (IsModerator(e.User, e.Server))
+                    if (GetPermissionLevel(e.User,e.Server) > 1)
                     {
                         await e.Channel.SendIsTyping();
                         try
@@ -472,6 +535,25 @@ namespace LazDude2012.Krobotkin
                 await _client.Connect(config.bot_token, TokenType.Bot);
                 Console.WriteLine("CONNECTED");
             });
+        }
+
+        private int GetPermissionLevel(User user, Server server)
+        {
+            if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
+            else
+            {
+                int ret = 0;
+                foreach (ConfigRole r in config.roles)
+                {
+                    if (server.GetRole(r.role_id) == null) continue;
+                    else
+                    {
+                        if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > ret)
+                            ret = r.trust_level;
+                    }
+                }
+                return ret;
+            }
         }
 
         private void Reserialise()
@@ -526,22 +608,9 @@ namespace LazDude2012.Krobotkin
             if (e.User.Name == "totallydialectical" && e.User.Discriminator == 8958)
             {
                 e.Server.Ban(e.User); //bans d3crypt
-                LogToCabal("d3crypt ban script triggered; d3crypt banned", _client.GetServer(193389057210843137));
+                LogToCabal("d3crypt ban script triggered; d3crypt banned", _client.GetServer(primary_server_id));
             }
-            if (e.Server.Id == 193389057210843137) DisplayWelcomeMessage(e.User);
-            if (e.Server.Id == 248993874666586142)
-            {
-                foreach(User u in _client.GetServer(193389057210843137).GetBans().Result)
-                {
-                    if (u.Id == e.User.Id)
-                    {
-                        e.Server.FindChannels("bunker_entrance").First().SendMessage($"``` ======================= WARNING =======================" + "\n THE USER {e.User.Name} IS BANNED FROM MAIN SERVER");
-                        break;
-                    }
-                }
-                Role unvet = e.Server.GetRole(256615732094304276);
-                e.User.AddRoles(unvet);
-            }
+            if (e.Server.Id == primary_server_id) DisplayWelcomeMessage(e.User);
         }
 
         private void DisplayWelcomeMessage(User user)
@@ -552,7 +621,8 @@ namespace LazDude2012.Krobotkin
                 avatar = (user.AvatarUrl == null) ? null : wc.DownloadData(user.AvatarUrl);
                 if (avatar == null)
                 {
-                    _client.GetChannel(257617086988288001).SendMessage("Welcome new comrade @" + user.Name + "#" + user.Discriminator.ToString());
+                    _client.GetChannel(mainchannel_id).SendMessage("Welcome new comrade" + user.Mention);
+ 
                     return;
                 }
             }
@@ -569,19 +639,19 @@ namespace LazDude2012.Krobotkin
                 ifact.Load("welcome.jpg");
                 ifact.Overlay(ilay);
                 System.Drawing.Color yellow = System.Drawing.Color.FromArgb(208,190,25);
-                TextLayer uname = new TextLayer { Position = new Point(108, 512), FontFamily = new FontFamily("TW Cen MT"), FontSize = 30, Text = user.Nickname, FontColor = yellow };
+                TextLayer uname = new TextLayer() { Position = new Point(108, 512), FontFamily = FontFamily.GenericSansSerif, FontSize = 30, Text = user.Nickname, FontColor = yellow };
                 ifact.Watermark(uname);
                 ifact.Save(outstream);
             }
-            Channel general = _client.GetChannel(257617086988288001);
-            general.SendMessage("Welcome new comrade @" + user.Name + "#" + user.Discriminator.ToString());
+            Channel general = _client.GetChannel(mainchannel_id);
+            general.SendMessage("Welcome new comrade " + user.Mention);
             general.SendFile("welcome.jpg", outstream);
-            LogToCabal($"User {user} joined.", _client.GetServer(193389057210843137));
+            LogToCabal($"User {user} joined.", _client.GetServer(primary_server_id));
         }
 
         private async void MorrowindTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Channel selfiedarity = _client.GetChannel(206432708581261312);
+            Channel selfiedarity = _client.GetChannel(photo_delete_channel_id);
             Message[] buffer = await selfiedarity.DownloadMessages(100);
             int messagesRemoved = 0;
             foreach(Message m in buffer)
@@ -592,44 +662,15 @@ namespace LazDude2012.Krobotkin
                     messagesRemoved++;
                 }
             }
-            if(messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(193389057210843137));
-            Channel general = _client.GetChannel(257617086988288001);
+            if(messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(primary_server_id));
+            Channel general = _client.GetChannel(mainchannel_id);
             await general.SendMessage(config.hourlyReminders[new Random().Next() % config.hourlyReminders.Count]);
-            foreach(ulong userId in usersToKickFromBunker)
-            {
-                try
-                {
-                    await _client.GetServer(248993874666586142).GetUser(userId).Kick();
-                }
-                catch(Exception ex)
-                {
-                    LogToCabal("Bunker clearing failed. Please clear bunker manually @NKVD.", _client.GetServer(193389057210843137));
-                }
-            }
-            usersToKickFromBunker.Clear();
-        }
-
-        private bool IsModerator(User user, Server server)
-        {
-            foreach(ConfigRole cr in config.moderatorRoles)
-            {
-                if (server.GetRole(cr.role_id) == null) continue;
-                if (user.HasRole(server.GetRole(cr.role_id)) && server.Id == cr.server_id) return true;
-            }
-            return false;
         }
 
         private async void LogToCabal(String logMessage,Server server)
         {
-            if (server.Id == 251948991200231430) //paep
-            {
-                await server.GetChannel(254059651753181186).SendMessage($"``` {logMessage} ```");
-            }
-            else
-            {
-                Channel cabal = _client.GetServer(193389057210843137).GetChannel(243537594393034754); //fullcommunism discord, the moderation log channel
-                await cabal.SendMessage($"``` {logMessage} ```");
-            }
+            Channel cabal = server.GetChannel(moderation_log_id); 
+            await cabal.SendMessage($"``` {logMessage} ```");
         }
     }
 }
