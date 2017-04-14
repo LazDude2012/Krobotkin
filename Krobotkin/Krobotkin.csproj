@@ -108,9 +108,6 @@
     <None Include="corpus\kropotkin\The State-Its Historic Role.txt" />
     <None Include="corpus\kropotkin\The Wage System.txt" />
     <None Include="corpus\kropotkin\War!.txt" />
-    <None Include="corpus\posadas\Flying Saucers.txt" />
-    <None Include="corpus\posadas\The Argentine Elections.txt" />
-    <None Include="corpus\posadas\The Cuban Revolution.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
