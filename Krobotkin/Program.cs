@@ -18,7 +18,6 @@ namespace LazDude2012.Krobotkin
     {
         
         static string version = "2.1";
-        static bool startedup = false;
         static void Main(string[] args) => new Krobotkin().Start();
 
         private DiscordClient _client;
@@ -39,7 +38,7 @@ namespace LazDude2012.Krobotkin
                     char latin = config.letters[normal];
                     output += latin;
                 }
-                catch (KeyNotFoundException e)
+                catch (KeyNotFoundException)
                 {
                     output += normal;
                 }
@@ -102,10 +101,6 @@ namespace LazDude2012.Krobotkin
 
         /********************   IMPORTANT CHANNEL IDs ****************************/
         private ulong primary_server_id = 193389057210843137;
-        private ulong mainchannel_id = 276394952660090881;
-        private ulong moderation_log_id = 243537594393034754;
-        private ulong photo_delete_channel_id = 276395301881905162;
-
 
         public void Start()
         {
@@ -122,14 +117,25 @@ namespace LazDude2012.Krobotkin
             hourlyTimer.AutoReset = true;
             hourlyTimer.Start();
             _client.UserJoined += _client_UserJoined;
+            _client.ServerAvailable += async (s, e) => {
+                Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
+                Console.WriteLine("Text: Channels:");
+                foreach (Channel channel in e.Server.TextChannels) {
+                    Console.WriteLine($"\t{channel.Name}: {channel.Id}");
+                }
+                Console.WriteLine("Voice: Channels:");
+                foreach (Channel channel in e.Server.VoiceChannels) {
+                    Console.WriteLine($"\t{channel.Name}: {channel.Id}");
+                }
+                try {
+                    Channel general = (from channel in config.primaryChannels where channel.server_id == e.Server.Id select _client.GetChannel(channel.channel_id)).First();
+                    await general.SendMessage($"Krobotkin {version} initialised.");
+                } catch (Exception) {
+                    Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+                }
+            };
             _client.MessageReceived += async (s, e) =>
             {
-                if(!startedup)
-                {
-                    Channel general = _client.GetChannel(mainchannel_id);
-                    await general.SendMessage($"Krobotkin {version} initialised.");
-                    startedup = true;
-                }
                 foreach(String word in config.Blacklist)
                 {
                     if (e.Message.Text.ToLower().Contains(word) && !e.User.IsBot && GetPermissionLevel(e.User, e.Server) < 2)
@@ -667,7 +673,9 @@ namespace LazDude2012.Krobotkin
                 avatar = (user.AvatarUrl == null) ? null : wc.DownloadData(user.AvatarUrl);
                 if (avatar == null)
                 {
-                    _client.GetChannel(mainchannel_id).SendMessage("Welcome new comrade" + user.Mention);
+                    _client.GetChannel(
+                        (from channel in config.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First()
+                    ).SendMessage("Welcome new comrade" + user.Mention);
  
                     return;
                 }
@@ -689,7 +697,7 @@ namespace LazDude2012.Krobotkin
                 ifact.Watermark(uname);
                 ifact.Save(outstream);
             }
-            Channel general = _client.GetChannel(mainchannel_id);
+            Channel general = _client.GetChannel((from channel in config.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First());
             general.SendMessage("Welcome new comrade " + user.Mention);
             general.SendFile("welcome.jpg", outstream);
             LogToCabal($"User {user} joined.", _client.GetServer(primary_server_id));
@@ -697,25 +705,24 @@ namespace LazDude2012.Krobotkin
 
         private async void MorrowindTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Channel selfiedarity = _client.GetChannel(photo_delete_channel_id);
-            Message[] buffer = await selfiedarity.DownloadMessages(100);
-            int messagesRemoved = 0;
-            foreach(Message m in buffer)
-            {
-                if (m.Attachments.Length != 0)
-                {
-                    await m.Delete();
-                    messagesRemoved++;
+            foreach(Channel photoDeleteChannel in (from channel in config.deletePhotoChannels select _client.GetChannel(channel.channel_id))) {
+                Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
+                int messagesRemoved = 0;
+                foreach (Message m in buffer) {
+                    if (m.Attachments.Length != 0) {
+                        await m.Delete();
+                        messagesRemoved++;
+                    }
                 }
+                if (messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
+                Channel general = _client.GetChannel((from generalChannel in config.primaryChannels where generalChannel.server_id == primary_server_id select generalChannel.channel_id).First());
+                await general.SendMessage(config.hourlyReminders[new Random().Next() % config.hourlyReminders.Count]);
             }
-            if(messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(primary_server_id));
-            Channel general = _client.GetChannel(mainchannel_id);
-            await general.SendMessage(config.hourlyReminders[new Random().Next() % config.hourlyReminders.Count]);
         }
 
         private async void LogToCabal(String logMessage,Server server)
         {
-            Channel cabal = server.GetChannel(moderation_log_id); 
+            Channel cabal = server.GetChannel((from channel in config.moderationLogChannels where channel.server_id == server.Id select channel).First().channel_id); 
             await cabal.SendMessage($"``` {logMessage} ```");
         }
     }

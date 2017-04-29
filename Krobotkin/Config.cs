@@ -11,6 +11,9 @@ namespace LazDude2012.Krobotkin
     {
         public List<String> Blacklist;
         public List<ConfigRole> roles;
+        public List<ConfigChannel> primaryChannels;
+        public List<ConfigChannel> moderationLogChannels;
+        public List<ConfigChannel> deletePhotoChannels;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
         public String bot_token;
@@ -80,6 +83,10 @@ namespace LazDude2012.Krobotkin
         public ulong server_id; 
         public ulong role_id;
         public int trust_level; //0 for users, 1 for trusted users, 2 for mods
+    }
+    public class ConfigChannel {
+        public ulong server_id;
+        public ulong channel_id;
     }
     public class EchoCommand
     {
