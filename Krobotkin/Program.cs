@@ -114,7 +114,7 @@ namespace LazDude2012.Krobotkin
             using (FileStream fs = new FileStream("config.xml",FileMode.OpenOrCreate))
             {
                 XmlSerializer reader = new XmlSerializer(typeof(Config));
-                config = (Config)reader.Deserialize(fs); 
+                config = (Config)reader.Deserialize(fs);
             }
            
             hourlyTimer.Interval = 3600000;
@@ -130,6 +130,9 @@ namespace LazDude2012.Krobotkin
                     await general.SendMessage($"Krobotkin {version} initialised.");
                     startedup = true;
                 }
+            };
+            _client.MessageReceived += async (s, e) =>
+            {
                 foreach(String word in config.Blacklist)
                 {
                     if (e.Message.Text.ToLower().Contains(word) && !e.User.IsBot && GetPermissionLevel(e.User, e.Server) < 2)
@@ -695,7 +698,7 @@ namespace LazDude2012.Krobotkin
             LogToCabal($"User {user} joined.", _client.GetServer(primary_server_id));
         }
 
-        private async void MorrowindTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Channel selfiedarity = _client.GetChannel(photo_delete_channel_id);
             Message[] buffer = await selfiedarity.DownloadMessages(100);
@@ -707,6 +710,7 @@ namespace LazDude2012.Krobotkin
                     await m.Delete();
                     messagesRemoved++;
                 }
+                if (messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(193389057210843137));
             }
             if(messagesRemoved != 0) LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", _client.GetServer(primary_server_id));
             Channel general = _client.GetChannel(mainchannel_id);
