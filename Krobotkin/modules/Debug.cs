@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 
 namespace Krobotkin.modules {
     class Debug : Module {
@@ -18,6 +19,26 @@ namespace Krobotkin.modules {
                     }
                 }
             }
+        }
+        public override void InitiateClient(DiscordClient _client) {
+            _client.GetService<CommandService>().CreateCommand("quit")
+                .Hide()
+                .Do(e =>
+                {
+                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 2) {
+                        _client.Disconnect();
+                        throw new Exception();
+                    }
+                }
+            );
+            _client.GetService<CommandService>().CreateCommand("testwelcome")
+                .Hide()
+                .Parameter("user")
+                .Do(e => {
+                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 2) {
+                        Krobotkin.DisplayWelcomeMessage(e.Message.MentionedUsers.First());
+                    }
+                });
         }
     }
 }
