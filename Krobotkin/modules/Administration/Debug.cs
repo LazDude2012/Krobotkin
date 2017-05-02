@@ -36,7 +36,7 @@ namespace Krobotkin.Modules.Administration {
                 .Parameter("user")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 2) {
-                        Krobotkin.DisplayWelcomeMessage(e.Message.MentionedUsers.First());
+                        WelcomeMessage.Display(e.Message.MentionedUsers.First());
                     }
                 });
         }

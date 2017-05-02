@@ -72,46 +72,7 @@ namespace Krobotkin
                 e.Server.Ban(e.User); //bans d3crypt
                 ModerationLog.LogToCabal("d3crypt ban script triggered; d3crypt banned", DiscordClient.GetServer(PRIMARY_SERVER_ID));
             }
-            if (e.Server.Id == PRIMARY_SERVER_ID) DisplayWelcomeMessage(e.User);
-        }
-
-        public static void DisplayWelcomeMessage(User user)
-        {
-            byte[] avatar = null;
-            using( var wc = new System.Net.WebClient())
-            {
-                avatar = (user.AvatarUrl == null) ? null : wc.DownloadData(user.AvatarUrl);
-                if (avatar == null)
-                {
-                    DiscordClient.GetChannel(
-                        (from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First()
-                    ).SendMessage("Welcome new comrade" + user.Mention);
- 
-                    return;
-                }
-            }
-            var astream = new MemoryStream(avatar);
-            Image ai = Image.FromStream(astream);
-            var outstream = new MemoryStream();
-            using(var ifact = new ImageProcessor.ImageFactory())
-            {
-                //159,204 image size 283x283
-                ImageLayer ilay = new ImageLayer() {
-                    Image = ai,
-                    Size = new Size(283, 283),
-                    Position = new Point(159, 204)
-                };
-                ifact.Load("resources/welcome.jpg");
-                ifact.Overlay(ilay);
-                System.Drawing.Color yellow = System.Drawing.Color.FromArgb(208,190,25);
-                TextLayer uname = new TextLayer() { Position = new Point(108, 512), FontFamily = FontFamily.GenericSansSerif, FontSize = 30, Text = user.Nickname, FontColor = yellow };
-                ifact.Watermark(uname);
-                ifact.Save(outstream);
-            }
-            Channel general = DiscordClient.GetChannel((from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First());
-            general.SendMessage("Welcome new comrade " + user.Mention);
-            general.SendFile("welcome.jpg", outstream);
-            ModerationLog.LogToCabal($"User {user} joined.", DiscordClient.GetServer(user.Server.Id));
+            if (e.Server.Id == PRIMARY_SERVER_ID) WelcomeMessage.Display(e.User);
         }
     }
 }
