@@ -7,8 +7,12 @@ using Discord;
 using System.Timers;
 
 namespace Krobotkin.Modules {
-    class HourlyTimer : Module {
+    class HourlyTimer : Module, IDisposable {
         private Timer Timer = new Timer();
+
+        public void Dispose() {
+            Timer.Dispose();
+        }
 
         public override void InitiateClient(DiscordClient _client) {
             Timer.Interval = 3600000;
