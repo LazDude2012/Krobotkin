@@ -65,7 +65,7 @@ namespace Krobotkin
             if (e.User.Name == "totallydialectical" && e.User.Discriminator == 8958)
             {
                 e.Server.Ban(e.User); //bans d3crypt
-                ModerationLog.LogToCabal("d3crypt ban script triggered; d3crypt banned", DiscordClient.GetServer(PRIMARY_SERVER_ID));
+                ModerationLog.LogToPublic("d3crypt ban script triggered; d3crypt banned", DiscordClient.GetServer(PRIMARY_SERVER_ID));
             }
             if (e.Server.Id == PRIMARY_SERVER_ID) WelcomeMessage.Display(e.User);
         }

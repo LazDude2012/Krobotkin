@@ -27,7 +27,7 @@ namespace Krobotkin.Modules.Administration {
                         }
                     }
                     await e.Message.Delete();
-                    ModerationLog.LogToCabal($"User {e.User.Name} purged {e.GetArg("number")} messages in #{e.Channel.Name}", e.Server);
+                    ModerationLog.LogToPublic($"User {e.User.Name} purged {e.GetArg("number")} messages in #{e.Channel.Name}", e.Server);
                 }
             );
         }

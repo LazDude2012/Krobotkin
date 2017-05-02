@@ -24,7 +24,7 @@ namespace Krobotkin.Modules.Administration {
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 1) {
                         Config.INSTANCE.Blacklist.Add(e.GetArg("word"));
-                        ModerationLog.LogToCabal($"User {e.User} added the word {e.Args[0]} to the blacklist.", e.Server);
+                        ModerationLog.LogToPublic($"User {e.User} added the word {e.Args[0]} to the blacklist.", e.Server);
                         Config.INSTANCE.Commit();
                     }
                 });
@@ -33,7 +33,7 @@ namespace Krobotkin.Modules.Administration {
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 1) {
                         Config.INSTANCE.Blacklist.Remove(e.Args[0]);
-                        ModerationLog.LogToCabal($"User {e.User} removed the word {e.Args[0]} from the blacklist.", e.Server);
+                        ModerationLog.LogToPublic($"User {e.User} removed the word {e.Args[0]} from the blacklist.", e.Server);
                     }
                 });
             });

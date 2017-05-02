@@ -42,7 +42,7 @@ namespace Krobotkin {
             Channel general = Krobotkin.DiscordClient.GetChannel((from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First());
             general.SendMessage("Welcome new comrade " + user.Mention);
             general.SendFile("welcome.jpg", outstream);
-            ModerationLog.LogToCabal($"User {user} joined.", Krobotkin.DiscordClient.GetServer(user.Server.Id));
+            ModerationLog.LogToPublic($"User {user} joined.", Krobotkin.DiscordClient.GetServer(user.Server.Id));
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Krobotkin.Modules.Administration {
                                 await user.Kick();
                             }
                         }
-                        ModerationLog.LogToCabal($"User {e.User.Name} kicked user(s) {usersKicked}", e.Server);
+                        ModerationLog.LogToPublic($"User {e.User.Name} kicked user(s) {usersKicked}", e.Server);
                     }
                 }
             );
@@ -35,7 +35,7 @@ namespace Krobotkin.Modules.Administration {
                                 await e.Server.Ban(user, 3);
                             }
                         }
-                        ModerationLog.LogToCabal($"User {e.User.Name} banned user(s) {usersBanned}", e.Server);
+                        ModerationLog.LogToPublic($"User {e.User.Name} banned user(s) {usersBanned}", e.Server);
                     }
                 }
             );

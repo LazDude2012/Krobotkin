@@ -32,7 +32,7 @@ namespace Krobotkin.Modules {
                             messagesRemoved++;
                         }
                     }
-                    if (messagesRemoved != 0) ModerationLog.LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
+                    if (messagesRemoved != 0) ModerationLog.LogToPublic($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
                 }
 
                 foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
