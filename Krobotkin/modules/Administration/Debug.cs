@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace Krobotkin.modules {
+namespace Krobotkin.Modules.Administration {
     class Debug : Module {
         public override async void ParseMessage(Channel channel, Message message) {
             if (message.Text.ToLower() == "debug init") { 

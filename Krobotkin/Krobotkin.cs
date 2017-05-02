@@ -19,8 +19,6 @@ namespace Krobotkin
 
         public static DiscordClient DiscordClient;
 
-        private Timer HourlyTimer = new Timer();
-
         public static List<ulong> UsersToKickFromBunker = new List<ulong>();
 
         /********************   IMPORTANT CHANNEL IDs ****************************/
@@ -40,10 +38,6 @@ namespace Krobotkin
                 Console.WriteLine("Did not find config, generating empty one");
             }
 
-            HourlyTimer.Interval = 3600000;
-            HourlyTimer.Elapsed += HourlyTimer_Elapsed;
-            HourlyTimer.AutoReset = true;
-            HourlyTimer.Start();
             DiscordClient.UserJoined += _client_UserJoined;
             DiscordClient.ServerAvailable += async (s, e) => {
                 Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
@@ -142,31 +136,6 @@ namespace Krobotkin
             general.SendMessage("Welcome new comrade " + user.Mention);
             general.SendFile("welcome.jpg", outstream);
             ModerationLog.LogToCabal($"User {user} joined.", DiscordClient.GetServer(user.Server.Id));
-        }
-
-        private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            foreach(Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select DiscordClient.GetChannel(channel.channel_id))) {
-                if(photoDeleteChannel != null) {
-                    Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
-                    int messagesRemoved = 0;
-                    foreach (Message m in buffer) {
-                        if (m.Attachments.Length != 0) {
-                            await m.Delete();
-                            messagesRemoved++;
-                        }
-                    }
-                    if (messagesRemoved != 0) ModerationLog.LogToCabal($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
-                }
-
-                foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
-                                            select DiscordClient.GetChannel(reminderChannel.channel_id)
-                ) {
-                    if(channel != null) {
-                        await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);
-                    }
-                }
-            }
         }
     }
 }

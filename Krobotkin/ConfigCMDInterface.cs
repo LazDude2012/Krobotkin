@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Krobotkin {
                 var inputParams = input.Split(' ');
                 var serverid = ulong.Parse(inputParams[1]);
 
-                var server = (from serv in DiscordClient.Servers where serv.Id == serverid select serv).First();
+                var server = (from serv in Krobotkin.DiscordClient.Servers where serv.Id == serverid select serv).First();
 
                 Console.WriteLine($"Name: {server.Name}");
                 Console.WriteLine("Roles:");

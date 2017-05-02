@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace Krobotkin.modules.Administration {
+namespace Krobotkin.Modules.Administration {
     class Blacklist : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateGroup("blacklist", bgp => {

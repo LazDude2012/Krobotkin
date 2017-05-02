@@ -8,7 +8,7 @@ using Discord.Commands;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Krobotkin.modules {
+namespace Krobotkin.Modules {
     class Corpus : Module {
         public override void InitiateClient(DiscordClient _client) {
             foreach(var authorDirectory in Directory.EnumerateDirectories("resources/corpus")) {

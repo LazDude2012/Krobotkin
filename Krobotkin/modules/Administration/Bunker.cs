@@ -2,7 +2,7 @@
 using Discord;
 using Discord.Commands;
 
-namespace Krobotkin.modules.Administration {
+namespace Krobotkin.Modules.Administration {
     public class Bunker : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("approve")

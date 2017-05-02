@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="ConfigCMDInterface.cs" />
     <Compile Include="ModerationLog.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="CommandResult.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="modules\Corpus.cs" />
     <Compile Include="modules\Debug.cs" />
     <Compile Include="modules\Echo.cs" />
+    <Compile Include="modules\HourlyTimer.cs" />
     <Compile Include="modules\Memeball.cs" />
     <Compile Include="Krobotkin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
