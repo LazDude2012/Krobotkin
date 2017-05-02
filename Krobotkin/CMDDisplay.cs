@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Krobotkin {
-    public static class ConfigCMDInterface {
+    public static class CMDDisplay {
         public static void Tick() {
             var input = Console.ReadLine();
             if (input.StartsWith("info ")) {
@@ -32,6 +32,28 @@ namespace Krobotkin {
                 foreach (Channel channel in server.VoiceChannels) {
                     Console.WriteLine($"\t{channel.Name}: {channel.Id}");
                 }
+            }
+        }
+
+        public static async void OnServerAvailableAsync(object sender, ServerEventArgs e) {
+            Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
+            try {
+                Channel general = (from channel in Config.INSTANCE.primaryChannels
+                                   where channel.server_id == e.Server.Id
+                                   select Krobotkin.DiscordClient.GetChannel(channel.channel_id)
+                                  ).First();
+                await general.SendMessage($"Krobotkin {Krobotkin.VERSION} initialised.");
+            } catch (Exception) {
+                Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+            }
+        }
+
+        public static void Start() {
+            Console.WriteLine("CONNECTED");
+            Console.WriteLine("Commands:");
+            Console.WriteLine("info <serverid> - view info about server");
+            while (true) {
+                Tick();
             }
         }
     }

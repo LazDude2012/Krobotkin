@@ -13,7 +13,7 @@ namespace Krobotkin
 {
     class Krobotkin
     {
-        static string VERSION = "3.0";
+        public const string VERSION = "3.0";
 
         static void Main(string[] args) => new Krobotkin().Start();
 
@@ -24,30 +24,17 @@ namespace Krobotkin
         /********************   IMPORTANT CHANNEL IDs ****************************/
         public const ulong PRIMARY_SERVER_ID = 193389057210843137;
 
-        public void Start()
-        {
+        public void Start() {
             DiscordClient = new DiscordClient();
 
-            if(File.Exists("config.xml")) {
-                using (FileStream fs = new FileStream("config.xml", FileMode.OpenOrCreate)) {
-                    XmlSerializer reader = new XmlSerializer(typeof(Config));
-                    Config.INSTANCE = (Config)reader.Deserialize(fs);
-                }
-            } else {
-                Config.INSTANCE = new Config();
-                Console.WriteLine("Did not find config, generating empty one");
-            }
+            DiscordClient.UsingCommands(x =>
+            {
+                x.PrefixChar = '!';
+                x.HelpMode = HelpMode.Public;
+            });
 
             DiscordClient.UserJoined += _client_UserJoined;
-            DiscordClient.ServerAvailable += async (s, e) => {
-                Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
-                try {
-                    Channel general = (from channel in Config.INSTANCE.primaryChannels where channel.server_id == e.Server.Id select DiscordClient.GetChannel(channel.channel_id)).First();
-                    await general.SendMessage($"Krobotkin {VERSION} initialised.");
-                } catch (Exception) {
-                    Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
-                }
-            };
+            DiscordClient.ServerAvailable += CMDDisplay.OnServerAvailableAsync;
 
             var moduleTypes = from type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                               where typeof(Module).IsAssignableFrom(type) && type != typeof(Module)
@@ -60,12 +47,6 @@ namespace Krobotkin
                     module.ParseMessage(e.Channel, e.Message);
                 }
             };
-
-            DiscordClient.UsingCommands(x =>
-           {
-               x.PrefixChar = '!';
-               x.HelpMode = HelpMode.Public;
-           });
 
             foreach (Module module in modules) {
                 module.InitiateClient(DiscordClient);
@@ -81,12 +62,7 @@ namespace Krobotkin
             }
 
             DiscordClient.Connect(Config.INSTANCE.bot_token, TokenType.Bot);
-            Console.WriteLine("CONNECTED");
-            Console.WriteLine("Commands:");
-            Console.WriteLine("info <serverid> - view info about server");
-            while(true) {
-                ConfigCMDInterface.Tick();
-            }
+            CMDDisplay.Start();
         }
 
         private void _client_UserJoined(object sender, UserEventArgs e)
