@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
-using System.Timers;
 using Discord;
 using Discord.Commands;
-using System.IO;
-using System.Drawing;
-using ImageProcessor.Imaging;
 
 namespace Krobotkin
 {
