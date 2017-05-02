@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 
-namespace Krobotkin.Modules {
+namespace KrobotkinDiscord.Modules {
     class Blacklist : Module {
         public override async void ParseMessage(Channel channel, Message message) {
             foreach (string word in Config.INSTANCE.Blacklist) {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Krobotkin {
+namespace KrobotkinDiscord {
     public class Config
     {
         [XmlIgnore]

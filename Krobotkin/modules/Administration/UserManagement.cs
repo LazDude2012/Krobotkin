@@ -3,7 +3,7 @@ using System.Linq;
 using Discord;
 using Discord.Commands;
 
-namespace Krobotkin.Modules.Administration {
+namespace KrobotkinDiscord.Modules.Administration {
     class UserManagement : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("kick")

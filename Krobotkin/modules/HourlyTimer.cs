@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using System.Timers;
 
-namespace Krobotkin.Modules {
+namespace KrobotkinDiscord.Modules {
     class HourlyTimer : Module, IDisposable {
         private Timer Timer = new Timer();
 
@@ -22,7 +22,7 @@ namespace Krobotkin.Modules {
         }
 
         private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e) {
-            foreach (Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select Krobotkin.DiscordClient.GetChannel(channel.channel_id))) {
+            foreach (Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select Program.DiscordClient.GetChannel(channel.channel_id))) {
                 if (photoDeleteChannel != null) {
                     Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
                     int messagesRemoved = 0;
@@ -36,7 +36,7 @@ namespace Krobotkin.Modules {
                 }
 
                 foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
-                                            select Krobotkin.DiscordClient.GetChannel(reminderChannel.channel_id)
+                                            select Program.DiscordClient.GetChannel(reminderChannel.channel_id)
                 ) {
                     if (channel != null) {
                         await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);

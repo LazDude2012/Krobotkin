@@ -7,7 +7,7 @@ using Discord;
 using Discord.Commands;
 using System.IO;
 
-namespace Krobotkin.Modules {
+namespace KrobotkinDiscord.Modules {
     public class Echo : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateGroup("echo", egp => {

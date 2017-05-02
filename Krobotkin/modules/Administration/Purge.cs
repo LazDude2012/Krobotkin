@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace Krobotkin.Modules.Administration {
+namespace KrobotkinDiscord.Modules.Administration {
     class Purge : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("purge")

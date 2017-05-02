@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Krobotkin {
+namespace KrobotkinDiscord {
     public static class CMDDisplay {
         public static void Tick() {
             var input = Console.ReadLine();
@@ -13,7 +13,7 @@ namespace Krobotkin {
                 var inputParams = input.Split(' ');
                 var serverid = ulong.Parse(inputParams[1]);
 
-                var server = (from serv in Krobotkin.DiscordClient.Servers where serv.Id == serverid select serv).First();
+                var server = (from serv in Program.DiscordClient.Servers where serv.Id == serverid select serv).First();
 
                 Console.WriteLine($"Name: {server.Name}");
                 Console.WriteLine("Roles:");
@@ -40,9 +40,9 @@ namespace Krobotkin {
             try {
                 Channel general = (from channel in Config.INSTANCE.primaryChannels
                                    where channel.server_id == e.Server.Id
-                                   select Krobotkin.DiscordClient.GetChannel(channel.channel_id)
+                                   select Program.DiscordClient.GetChannel(channel.channel_id)
                                   ).First();
-                await general.SendMessage($"Krobotkin {Krobotkin.VERSION} initialised.");
+                await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
             } catch (Exception) {
                 Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
             }

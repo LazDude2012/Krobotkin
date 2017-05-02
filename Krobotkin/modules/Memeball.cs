@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Krobotkin.Modules {
+namespace KrobotkinDiscord.Modules {
     class Memeball : Module {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("mball")
