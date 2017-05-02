@@ -87,39 +87,85 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ModerationLog.cs" />
+    <Compile Include="Module.cs" />
+    <Compile Include="CommandResult.cs" />
+    <Compile Include="modules\Aesthetic.cs" />
+    <Compile Include="modules\Ayy.cs" />
+    <Compile Include="modules\Blacklist.cs" />
+    <Compile Include="modules\Corpus.cs" />
+    <Compile Include="modules\Debug.cs" />
+    <Compile Include="modules\Echo.cs" />
+    <Compile Include="modules\Memeball.cs" />
+    <Compile Include="Krobotkin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="corpus\kropotkin\Advice to Those About to Emigrate.txt" />
-    <None Include="corpus\kropotkin\Declaration to the Tribunal of Lyons.txt" />
-    <None Include="corpus\kropotkin\The Paris Commune.txt" />
-    <None Include="corpus\kropotkin\Anarchism-Its Philosophy and Ideal.txt" />
-    <None Include="corpus\kropotkin\Anarchism.txt" />
-    <None Include="corpus\kropotkin\Anarchist Morality.txt" />
-    <None Include="corpus\kropotkin\Communism and Anarchy.txt" />
-    <None Include="corpus\kropotkin\Mutual Aid-A Factor of Evolution.txt" />
-    <None Include="corpus\kropotkin\Peter Kropotkin%27s Last Letter.txt" />
-    <None Include="corpus\kropotkin\Proposed Communist Settlement.txt" />
-    <None Include="corpus\kropotkin\The Effects of Persecution.txt" />
-    <None Include="corpus\kropotkin\The Russian Revolution and the Soviet Government.txt" />
-    <None Include="corpus\kropotkin\The State-Its Historic Role.txt" />
-    <None Include="corpus\kropotkin\The Wage System.txt" />
-    <None Include="corpus\kropotkin\War!.txt" />
-    <None Include="corpus\posadas\Flying Saucers.txt" />
-    <None Include="corpus\posadas\The Argentine Elections.txt" />
-    <None Include="corpus\posadas\The Cuban Revolution.txt" />
+    <None Include="resources\corpus\kropotkin\Advice to Those About to Emigrate.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Declaration to the Tribunal of Lyons.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\The Paris Commune.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Anarchism-Its Philosophy and Ideal.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Anarchism.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Anarchist Morality.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Communism and Anarchy.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Mutual Aid-A Factor of Evolution.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Peter Kropotkin%27s Last Letter.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\Proposed Communist Settlement.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\The Effects of Persecution.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\The Russian Revolution and the Soviet Government.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\The State-Its Historic Role.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\The Wage System.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\kropotkin\War!.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\posadas\Flying Saucers.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\posadas\The Argentine Elections.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\corpus\posadas\The Cuban Revolution.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ancap.png">
+    <Content Include="resources\mball\ancap.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ancom.png">
+    <Content Include="resources\mball\ancom.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="anprim.png">
+    <Content Include="resources\mball\anprim.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="blacklist.txt">
@@ -128,7 +174,7 @@
     <Content Include="config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="hillary.png">
+    <Content Include="resources\mball\hillary.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="HYPER-WEW.gif">
@@ -137,13 +183,13 @@
     <Content Include="k.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="lmao.gif">
+    <Content Include="resources\lmao.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="tankie.png">
+    <Content Include="resources\mball\tankie.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="transhumanism.png">
+    <Content Include="resources\mball\transhumanism.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="welcome.jpg">
