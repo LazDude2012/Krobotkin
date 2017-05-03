@@ -14,7 +14,7 @@ namespace KrobotkinDiscord.Modules {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("mball")
                 .Parameter("Base Image")
-                .Parameter("Text")
+                .Parameter("Text", ParameterType.Multiple)
                 .Do(async e => {
                     var channel = e.Channel;
                     var message = e.Message;

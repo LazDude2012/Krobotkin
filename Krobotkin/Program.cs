@@ -10,7 +10,7 @@ namespace KrobotkinDiscord
 {
     class Program
     {
-        public const string VERSION = "3.0";
+        public const string VERSION = "3.0a";
 
         static void Main(string[] args) => new Program().Start();
 
