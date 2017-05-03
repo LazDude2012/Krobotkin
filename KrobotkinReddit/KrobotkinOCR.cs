@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,10 +25,16 @@ namespace KrobotkinReddit {
 
             var img = (Bitmap)Image.FromStream(resp.GetResponseStream());
 
-            var page = _engine.Process(img);
-            
+            Bitmap upscaled = new Bitmap(img.Width * 4, img.Height * 4);
+            using (Graphics gr = Graphics.FromImage(upscaled)) {
+                gr.SmoothingMode = SmoothingMode.HighQuality;
+                gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gr.DrawImage(img, new Rectangle(0, 0, img.Width * 4, img.Height * 4));
 
-            img.Save("test.png");
+            }
+
+            var page = _engine.Process(upscaled);
 
             textFound = page.GetText().Trim();
 

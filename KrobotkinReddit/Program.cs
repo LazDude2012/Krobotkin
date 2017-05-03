@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace KrobotkinReddit {
     class Program {
+        static List<string> hiddenPosts = new List<string>();
         static void Main(string[] args) {
             var reddit = new Reddit();
             var user = reddit.LogIn("KrobotkinOCR", "#Gigimoi00");
@@ -26,7 +27,10 @@ namespace KrobotkinReddit {
             }
             while(true) {
                 foreach (Subreddit subreddit in subreddits) {
-                    foreach (var post in subreddit.New.Take(20)) {
+                    foreach (var post in subreddit.New.Take(8)) {
+                        if(hiddenPosts.Contains(post.Id)) {
+                            continue;
+                        }
                         if (post.Url.AbsoluteUri.EndsWith(".png") ||
                             post.Url.AbsoluteUri.EndsWith(".jpg") ||
                             post.Url.AbsoluteUri.EndsWith(".tiff") ||
@@ -44,15 +48,18 @@ namespace KrobotkinReddit {
                                     var response = new KrobotkinOCR().GetTextFromImage(post.Url.AbsoluteUri);
                                     if (response.Text.Length == 0) {
                                         Console.WriteLine("Skip empty string");
+                                        hiddenPosts.Add(post.Id);
                                     } else {
                                         if(response.Confidence > 0.74) {
                                             Console.WriteLine("Posting...");
                                             var fullComment = disclaimer + response.Text.Replace("\n", "\n    ") + "\n\nIf that didn't make any sense, please pm me letting me know. Thanks!\n\n(Confidence: " + response.Confidence + ")";
                                             post.Comment(fullComment);
                                             Console.WriteLine("Posted \n" + fullComment + "\n=============");
+                                            hiddenPosts.Add(post.Id);
                                         }
                                         else {
                                             Console.WriteLine("Skip Non-confident");
+                                            hiddenPosts.Add(post.Id);
                                         }
                                     }
                                 } catch (RateLimitException e) {
@@ -60,12 +67,15 @@ namespace KrobotkinReddit {
                                     Thread.Sleep(e.TimeToReset.Add(new TimeSpan(0, 0, 5))); //Wait 5 extra seconds
                                 } catch {
                                     Console.WriteLine("Skip nothing found");
+                                    hiddenPosts.Add(post.Id);
                                 }
                             } else {
                                 Console.WriteLine("Skip already posted");
+                                hiddenPosts.Add(post.Id);
                             }
                         } else {
                             Console.WriteLine("Skip non-image");
+                            hiddenPosts.Add(post.Id);
                         }
                     }
                 }
