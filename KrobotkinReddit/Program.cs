@@ -11,23 +11,26 @@ namespace KrobotkinReddit {
     class Program {
         static List<string> hiddenPosts = new List<string>();
         static void Main(string[] args) {
+            Console.WriteLine("Starting");
             var reddit = new Reddit();
-            var user = reddit.LogIn("KrobotkinOCR", "#Gigimoi00");
-
-            var subredditNames = new string[] { "/r/FullCommunism", "/r/FullFreeTerritory", "/r/LateStageCapitalism", "/r/wholesomecommiememes" };
+            var user = reddit.LogIn(Config.INSTANCE.username, Config.INSTANCE.password);
+            Console.WriteLine("Logged in");
 
             var subreddits = new List<Subreddit>();
 
-            foreach(var subName in subredditNames) {
+            foreach(var subName in Config.INSTANCE.subreddits) {
                 subreddits.Add(reddit.GetSubreddit(subName));
             }
 
             foreach(Subreddit subreddit in subreddits) {
                 subreddit.Subscribe();
             }
-            while(true) {
+
+            Console.WriteLine("Looping...");
+
+            while (true) {
                 foreach (Subreddit subreddit in subreddits) {
-                    foreach (var post in subreddit.New.Take(8)) {
+                    foreach (var post in subreddit.New.Take(1000)) {
                         if(hiddenPosts.Contains(post.Id)) {
                             continue;
                         }
@@ -52,7 +55,7 @@ namespace KrobotkinReddit {
                                     } else {
                                         if(response.Confidence > 0.74) {
                                             Console.WriteLine("Posting...");
-                                            var fullComment = disclaimer + response.Text.Replace("\n", "\n    ") + "\n\nIf that didn't make any sense, please pm me letting me know. Thanks!\n\n(Confidence: " + response.Confidence + ")";
+                                            var fullComment = disclaimer + response.Text.Replace("\n", "\n    ") + "\n\nIf that didn't make any sense, please reply with a better version. Thanks!\n\n(Confidence: " + response.Confidence + ")";
                                             post.Comment(fullComment);
                                             Console.WriteLine("Posted \n" + fullComment + "\n=============");
                                             hiddenPosts.Add(post.Id);
