@@ -34,13 +34,13 @@ namespace KrobotkinDiscord.Modules {
                     }
                     if (messagesRemoved != 0) ModerationLog.LogToPublic($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
                 }
+            }
 
-                foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
-                                            select Program.DiscordClient.GetChannel(reminderChannel.channel_id)
-                ) {
-                    if (channel != null) {
-                        await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);
-                    }
+            foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
+                                        select Program.DiscordClient.GetChannel(reminderChannel.channel_id)
+            ) {
+                if (channel != null) {
+                    await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);
                 }
             }
         }

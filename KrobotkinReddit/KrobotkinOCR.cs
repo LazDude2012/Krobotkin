@@ -36,7 +36,15 @@ namespace KrobotkinReddit {
 
             var page = _engine.Process(upscaled);
 
-            textFound = page.GetText().Trim();
+            try {
+                textFound = page.GetText().Trim();
+            } catch(AccessViolationException) {
+                Console.WriteLine("Found weird bug");
+            }
+            
+
+            upscaled.Dispose();
+            img.Dispose();
 
             return new OCRResponse() {
                 Text = textFound,

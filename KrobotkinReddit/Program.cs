@@ -30,7 +30,7 @@ namespace KrobotkinReddit {
 
             while (true) {
                 foreach (Subreddit subreddit in subreddits) {
-                    foreach (var post in subreddit.New.Take(1000)) {
+                    foreach (var post in subreddit.New.Take(10)) {
                         if(hiddenPosts.Contains(post.Id)) {
                             continue;
                         }

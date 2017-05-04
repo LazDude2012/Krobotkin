@@ -12,6 +12,7 @@ namespace KrobotkinDiscord.Modules.Administration {
             _client.GetService<CommandService>().CreateCommand("purge")
                 .Alias("delet")
                 .Alias("delete")
+                .Alias("settler-colonize")
                 .Description("Clears messages from a channel.")
                 .Parameter("number", type: ParameterType.Required)
                 .Parameter("user", ParameterType.Optional)
