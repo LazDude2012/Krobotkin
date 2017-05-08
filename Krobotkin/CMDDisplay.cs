@@ -35,7 +35,7 @@ namespace KrobotkinDiscord {
             }
         }
 
-        public static async void OnServerAvailableAsync(object sender, ServerEventArgs e) {
+        public static async void OnServerAvailable(object sender, ServerEventArgs e) {
             Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
             try {
                 Channel general = (from channel in Config.INSTANCE.primaryChannels

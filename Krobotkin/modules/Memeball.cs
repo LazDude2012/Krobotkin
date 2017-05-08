@@ -11,25 +11,19 @@ using System.Threading.Tasks;
 
 namespace KrobotkinDiscord.Modules {
     class Memeball : Module {
-        public override void InitiateClient(DiscordClient _client) {
-            _client.GetService<CommandService>().CreateCommand("mball")
-                .Parameter("Base Image")
-                .Parameter("Text", ParameterType.Multiple)
-                .Do(async e => {
-                    var channel = e.Channel;
-                    var message = e.Message;
-                    await channel.SendIsTyping();
-                    using (MemoryStream memstream = new MemoryStream()) {
+        public override async void ParseMessage(Channel channel, Message message) {
+            if (message.Text.StartsWith("!mball ")) {
+                await channel.SendIsTyping();
+                using (MemoryStream memstream = new MemoryStream()) {
 
-                        try {
-                            await ProcessMemeballMeme(message.Text.Substring(7), memstream);
-                            await channel.SendFile("meme.png", memstream);
-                        } catch (Exception) {
-                            await channel.SendMessage("Sorry Dave, I can't do that. :/");
-                        }
+                    try {
+                        await ProcessMemeballMeme(message.Text.Substring(7), memstream);
+                        await channel.SendFile("meme.png", memstream);
+                    } catch (Exception) {
+                        await channel.SendMessage("Sorry Dave, I can't do that. :/");
                     }
                 }
-            );
+            }
         }
 
         private Task ProcessMemeballMeme(string text, MemoryStream stream) {

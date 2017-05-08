@@ -10,7 +10,7 @@ namespace KrobotkinDiscord
 {
     class Program
     {
-        public const string VERSION = "3.0.1";
+        public const string VERSION = "3.0.1a";
 
         static void Main(string[] args) => new Program().Start();
 
@@ -35,7 +35,7 @@ namespace KrobotkinDiscord
             });
 
             DiscordClient.UserJoined += OnUserJoined;
-            DiscordClient.ServerAvailable += CMDDisplay.OnServerAvailableAsync;
+            DiscordClient.ServerAvailable += CMDDisplay.OnServerAvailable;
 
             InitializeModules();
 

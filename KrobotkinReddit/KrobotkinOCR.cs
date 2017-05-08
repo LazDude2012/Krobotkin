@@ -18,6 +18,9 @@ namespace KrobotkinReddit {
         private TesseractEngine _engine = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
 
         public OCRResponse GetTextFromImage(string url) {
+
+            _engine.DefaultPageSegMode = PageSegMode.AutoOsd;
+
             var textFound = "";
 
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
@@ -31,7 +34,6 @@ namespace KrobotkinReddit {
                 gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 gr.DrawImage(img, new Rectangle(0, 0, img.Width * 4, img.Height * 4));
-
             }
 
             var page = _engine.Process(upscaled);
