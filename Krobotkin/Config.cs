@@ -1,19 +1,64 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Xml.Serialization;
 
-namespace LazDude2012.Krobotkin
-{
+namespace KrobotkinDiscord {
     public class Config
     {
+        [XmlIgnore]
+        private static Config _instance;
+        [XmlIgnore]
+        public static Config INSTANCE {
+            get {
+                if(_instance == null) {
+                    if (File.Exists("config.xml")) {
+                        using (FileStream fs = new FileStream("config.xml", FileMode.OpenOrCreate)) {
+                            XmlSerializer reader = new XmlSerializer(typeof(Config));
+                            _instance = (Config)reader.Deserialize(fs);
+                        }
+                    } else {
+                        _instance = new Config();
+                        Console.WriteLine("Did not find config, generating empty one");
+                    }
+                }
+                return _instance;
+            }
+        }
         public List<String> Blacklist;
         public List<ConfigRole> roles;
+        public List<ConfigChannel> primaryChannels;
+        public List<ConfigChannel> hourlyReminderChannels;
+        public List<ConfigChannel> moderationLogChannels;
+        public List<ConfigChannel> deletePhotoChannels;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
         public String bot_token;
+
+        public void Commit() {
+            using (FileStream fs = new FileStream("config.xml", FileMode.Create)) {
+                XmlSerializer writer = new XmlSerializer(typeof(Config));
+                writer.Serialize(fs, Config.INSTANCE);
+            }
+        }
+
+        public int GetPermissionLevel(User user, Server server) {
+            if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
+            if (user.Id == 83667364595372032) return 3; //gigi too thanks
+            else {
+                int ret = 0;
+                foreach (ConfigRole r in roles) {
+                    if (server.GetRole(r.role_id) == null) continue;
+                    else {
+                        if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > ret)
+                            ret = r.trust_level;
+                    }
+                }
+                return ret;
+            }
+        }
+
         [XmlIgnore]
         #region unicode_dictionary
         public Dictionary<char, char> letters = new Dictionary<char, char>()
@@ -80,6 +125,10 @@ namespace LazDude2012.Krobotkin
         public ulong server_id; 
         public ulong role_id;
         public int trust_level; //0 for users, 1 for trusted users, 2 for mods
+    }
+    public class ConfigChannel {
+        public ulong server_id;
+        public ulong channel_id;
     }
     public class EchoCommand
     {

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Blacklist>
+    <!-- Each blacklisted word or phrase goes in <string> tags. -->
+    <string>cuck</string>
+  </Blacklist>
+  <moderatorRoles>
+    <!-- This is a list of ConfigRole objects, representing user roles with permission to use moderator commands.
+         Each ConfigRole tag must have two objects: <server_id> is the 64-bit ID of the server to which the role belongs,
+         and <role_id> is the ID of the role itself. -->
+    <ConfigRole>
+      <server_id>193389057210843137</server_id>
+      <role_id>193539209611444225</role_id>
+    </ConfigRole>
+  </moderatorRoles>
+  <trustedRoles />
+  <echoCommands>
+    <!-- Echo commands are stored here, with the format below. <challenge> is the command itself, <response> is the reply. -->
+    <EchoCommand>
+      <challenge>f</challenge>
+      <response>http://imgur.com/nRzSovS</response>
+    </EchoCommand>
+  </echoCommands>
+  <colorisationIgnoreRoles>
+    <!-- This is for a deprecated feature and can be safely ignored. -->
+  </colorisationIgnoreRoles>
+  <hourlyReminders>
+    <!-- Each phrase put in <string> tags below is an option to be randomly chosen every hour. -->
+    <string>Regularly scheduled reminder: Morrowind is the best game, and Trump is just another bourgeois stooge.</string>
+  </hourlyReminders>
+  <bot_token>MzAxODE1NzczNjQxNTcyMzUy.C9AfsQ.sCoEHfXLm9JSRaVyUJfAMLRZ7eM</bot_token>
+</Config>
