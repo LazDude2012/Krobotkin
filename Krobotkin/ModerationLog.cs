@@ -8,8 +8,13 @@ using System.Threading.Tasks;
 namespace KrobotkinDiscord {
     class ModerationLog {
         public static async void LogToPublic(String logMessage, Server server) {
-            Channel cabal = server.GetChannel((from channel in Config.INSTANCE.moderationLogChannels where channel.server_id == server.Id select channel).First().channel_id);
-            await cabal.SendMessage($"``` {logMessage} ```");
+            try {
+                Channel cabal = server.GetChannel((from channel in Config.INSTANCE.moderationLogChannels where channel.server_id == server.Id select channel).First().channel_id);
+                await cabal.SendMessage($"``` {logMessage} ```");
+            }
+            catch {
+                Console.WriteLine($"Failed to log message {logMessage} on {server.Name}");
+            }
         }
     }
 }
