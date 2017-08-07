@@ -12,7 +12,9 @@ namespace KrobotkinDiscord.Modules {
             _client.GetService<CommandService>().CreateCommand("aes")
                 .Parameter("entry", ParameterType.Multiple)
                 .Do(e => {
-                    e.Channel.SendMessage(ConvertToFullwidth(string.Join(" ", e.Args)));
+                    if(Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
+                        e.Channel.SendMessage(ConvertToFullwidth(string.Join(" ", e.Args)));
+                    }
                 }
             );
         }

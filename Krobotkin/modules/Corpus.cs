@@ -16,11 +16,13 @@ namespace KrobotkinDiscord.Modules {
                 _client.GetService<CommandService>().CreateCommand(authorName)
                     .Parameter("phrase", ParameterType.Multiple)
                     .Do(async e => {
-                        var phrase = string.Join(" ", e.Args);
-                        var response = FindCorpusText(phrase, authorName, false);
+                        if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
+                            var phrase = string.Join(" ", e.Args);
+                            var response = FindCorpusText(phrase, authorName, false);
 
-                        if (response == "") await e.Channel.SendMessage("None found.");
-                        else await e.Channel.SendMessage(response);
+                            if (response == "") await e.Channel.SendMessage("None found.");
+                            else await e.Channel.SendMessage(response);
+                        }
                     }
                 );
             }

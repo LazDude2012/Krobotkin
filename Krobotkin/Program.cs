@@ -10,7 +10,7 @@ namespace KrobotkinDiscord
 {
     class Program
     {
-        public const string VERSION = "3.0.1b";
+        public const string VERSION = "3.0.3e";
 
         static void Main(string[] args) => new Program().Start();
 
@@ -38,13 +38,6 @@ namespace KrobotkinDiscord
             DiscordClient.ServerAvailable += CMDDisplay.OnServerAvailable;
 
             InitializeModules();
-
-            foreach (EchoCommand ec in Config.INSTANCE.echoCommands) {
-                DiscordClient.GetService<CommandService>().CreateCommand(ec.challenge)
-                    .Do(async e => {
-                        await e.Channel.SendMessage(ec.response);
-                    });
-            }
 
             DiscordClient.Connect(Config.INSTANCE.bot_token, TokenType.Bot);
         }
