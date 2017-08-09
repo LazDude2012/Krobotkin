@@ -36,7 +36,7 @@ namespace KrobotkinDiscord {
         public List<ConfigUser> sleepedUsers;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
-        public String bot_token;
+        public List<String> bot_tokens;
 
         public void Commit() {
             using (FileStream fs = new FileStream("config.xml", FileMode.Create)) {

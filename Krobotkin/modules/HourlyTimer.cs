@@ -22,25 +22,27 @@ namespace KrobotkinDiscord.Modules {
         }
 
         private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e) {
-            foreach (Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select Program.DiscordClient.GetChannel(channel.channel_id))) {
-                if (photoDeleteChannel != null) {
-                    Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
-                    int messagesRemoved = 0;
-                    foreach (Message m in buffer) {
-                        if (m.Attachments.Length != 0) {
-                            await m.Delete();
-                            messagesRemoved++;
+            foreach(DiscordClient client in Program.clients) {
+                foreach (Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select client.GetChannel(channel.channel_id))) {
+                    if (photoDeleteChannel != null) {
+                        Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
+                        int messagesRemoved = 0;
+                        foreach (Message m in buffer) {
+                            if (m.Attachments.Length != 0) {
+                                await m.Delete();
+                                messagesRemoved++;
+                            }
                         }
+                        if (messagesRemoved != 0) ModerationLog.LogToPublic($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
                     }
-                    if (messagesRemoved != 0) ModerationLog.LogToPublic($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
                 }
-            }
 
-            foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
-                                        select Program.DiscordClient.GetChannel(reminderChannel.channel_id)
-            ) {
-                if (channel != null) {
-                    await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);
+                foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
+                                            select client.GetChannel(reminderChannel.channel_id)
+                ) {
+                    if (channel != null) {
+                        await channel.SendMessage(Config.INSTANCE.hourlyReminders[new Random().Next() % Config.INSTANCE.hourlyReminders.Count]);
+                    }
                 }
             }
         }

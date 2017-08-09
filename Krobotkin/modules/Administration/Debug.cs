@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace KrobotkinDiscord.Modules.Administration {
     class Debug : Module {
+        /*
         public override async void ParseMessage(Channel channel, Message message) {
             if (message.Text.ToLower() == "debug init") { 
                 if (Config.INSTANCE.GetPermissionLevel(message.User, message.Server) > 2) {
@@ -17,6 +18,7 @@ namespace KrobotkinDiscord.Modules.Administration {
                 }
             }
         }
+        */
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("quit")
                 .Hide()
@@ -33,7 +35,7 @@ namespace KrobotkinDiscord.Modules.Administration {
                 .Parameter("user")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 2) {
-                        WelcomeMessage.Display(e.Message.MentionedUsers.First());
+                        WelcomeMessage.Display(e.Message.MentionedUsers.First(), e.Server.Client);
                     }
                 });
         }

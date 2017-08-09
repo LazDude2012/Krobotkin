@@ -13,7 +13,7 @@ namespace KrobotkinDiscord {
                 var inputParams = input.Split(' ');
                 var serverid = ulong.Parse(inputParams[1]);
 
-                var server = (from serv in Program.DiscordClient.Servers where serv.Id == serverid select serv).First();
+                var server = (from serv in Program.clients.SelectMany(s => s.Servers) where serv.Id == serverid select serv).First();
 
                 Console.WriteLine($"Name: {server.Name}");
                 Console.WriteLine("Roles:");
@@ -35,12 +35,12 @@ namespace KrobotkinDiscord {
             }
         }
 
-        public static async void OnServerAvailable(object sender, ServerEventArgs e) {
+        public static async void OnServerAvailable(object sender, ServerEventArgs e, DiscordClient client) {
             Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
             try {
                 Channel general = (from channel in Config.INSTANCE.primaryChannels
                                    where channel.server_id == e.Server.Id
-                                   select Program.DiscordClient.GetChannel(channel.channel_id)
+                                   select client.GetChannel(channel.channel_id)
                                   ).First();
                 await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
             } catch (Exception) {
