@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace KrobotkinDiscord {
     public static class CMDDisplay {
+        static List<ulong> connectedServers = new List<ulong>();
+
         public static void Tick() {
             var input = Console.ReadLine();
             if (input.StartsWith("info ")) {
@@ -36,15 +38,18 @@ namespace KrobotkinDiscord {
         }
 
         public static async void OnServerAvailable(object sender, ServerEventArgs e, DiscordClient client) {
-            Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
-            try {
-                Channel general = (from channel in Config.INSTANCE.primaryChannels
-                                   where channel.server_id == e.Server.Id
-                                   select client.GetChannel(channel.channel_id)
-                                  ).First();
-                await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
-            } catch (Exception) {
-                Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+            if(!connectedServers.Contains(e.Server.Id)) {
+                connectedServers.Add(e.Server.Id);
+                Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
+                try {
+                    Channel general = (from channel in Config.INSTANCE.primaryChannels
+                                       where channel.server_id == e.Server.Id
+                                       select client.GetChannel(channel.channel_id)
+                                      ).First();
+                    await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
+                } catch (Exception) {
+                    Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+                }
             }
         }
 

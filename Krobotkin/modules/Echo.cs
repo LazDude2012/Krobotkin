@@ -9,15 +9,22 @@ using System.IO;
 
 namespace KrobotkinDiscord.Modules {
     public class Echo : Module {
-        public override void InitiateClient(DiscordClient _client) {
-            foreach (EchoCommand ec in Config.INSTANCE.echoCommands) {
-                _client.GetService<CommandService>().CreateCommand(ec.challenge)
-                    .Do(async e => {
-                        if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
-                            await e.Channel.SendMessage(ec.response);
+        public override async void ParseMessageAsync(Channel channel, Message message) {
+            if (message.Text.StartsWith("!")) {
+                foreach (var echo in Config.INSTANCE.echoCommands) {
+                    if (echo.challenge == message.Text.Substring(1).Trim()) {
+                        if (echo.server_id == 0) {
+                            echo.server_id = Program.PRIMARY_SERVER_ID;
+                            Config.INSTANCE.Commit();
                         }
-                    });
+                        if (echo.server_id == message.Server.Id) {
+                            await message.Channel.SendMessage(echo.response);
+                        }
+                    }
+                }
             }
+        }
+        public override void InitiateClient(DiscordClient _client) {
 
             _client.GetService<CommandService>().CreateGroup("echo", egp => {
                 egp.CreateCommand("add")
@@ -25,15 +32,18 @@ namespace KrobotkinDiscord.Modules {
                 .Parameter("response")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 0) {
-                        EchoCommand ec = new EchoCommand { challenge = e.Args[0], response = e.Args[1] };
+                        EchoCommand ec = new EchoCommand {
+                            challenge = e.Args[0],
+                            response = e.Args[1],
+                            server_id = e.Server.Id
+                        };
+                        if(Config.INSTANCE.echoCommands.Contains(ec)) {
+                            e.Channel.SendMessage("Cannot add echo !" + ec.challenge + "... already exists");
+                            return;
+                        }
                         Config.INSTANCE.echoCommands.Add(ec);
-                        _client.GetService<CommandService>().CreateCommand(ec.challenge)
-                        .Do(async f => {
-                            if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
-                                await f.Channel.SendMessage(ec.response);
-                            }
-                        });
                         Config.INSTANCE.Commit();
+                        e.Channel.SendMessage("Added echo !" + ec.challenge + " : " + ec.response);
                     } else {
                         e.Channel.SendMessage("Sorry, you don't have permission to do that.");
                     }
@@ -46,11 +56,13 @@ namespace KrobotkinDiscord.Modules {
                         StreamWriter sw = new StreamWriter("echolist.html", false);
                         sw.Write("<html>\n<body>\n<h1>ECHO LIST</h1>\n");
                         foreach (EchoCommand ec in Config.INSTANCE.echoCommands) {
-                            if (ec.response.StartsWith("http")) {
-                                sw.WriteLine($"<p>{ec.challenge} :&gt; <a href='{ec.response}'> link </a> </p><br/>");
-                            } else sw.WriteLine($"<p>{ec.challenge} :&gt; {ec.response}</p><br/>");
-                            progress = (progress == 12 ? 1 : progress + 1);
-                            await compiling.Edit($"Please wait, compiling echo list. :clock{progress}:");
+                            if(ec.server_id == e.Server.Id) {
+                                if (ec.response.StartsWith("http")) {
+                                    sw.WriteLine($"<p>{ec.challenge} :&gt; <a href='{ec.response}'> link </a> </p><br/>");
+                                } else sw.WriteLine($"<p>{ec.challenge} :&gt; {ec.response}</p><br/>");
+                                progress = (progress == 12 ? 1 : progress + 1);
+                                await compiling.Edit($"Please wait, compiling echo list. :clock{progress}:");
+                            }
                         }
                         sw.Write("</body>");
                         sw.Close();
@@ -68,7 +80,7 @@ namespace KrobotkinDiscord.Modules {
                                 break;
                             }
                         }
-                        e.Channel.SendMessage($"The echo {e.Args[0]} will be removed on the next restart of Krobotkin.");
+                        e.Channel.SendMessage($"The echo {e.Args[0]} has been removed.");
                         Config.INSTANCE.Commit();
                     }
                 });

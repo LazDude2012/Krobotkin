@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace KrobotkinDiscord.Modules {
     class Memeball : Module {
-        public override async void ParseMessage(Channel channel, Message message) {
+        public override async void ParseMessageAsync(Channel channel, Message message) {
             if (Config.INSTANCE.GetPermissionLevel(message.User, message.Server) >= 0) {
                 if (message.Text.StartsWith("!mball ")) {
                     await channel.SendIsTyping();

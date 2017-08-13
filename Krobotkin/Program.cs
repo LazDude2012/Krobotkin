@@ -11,7 +11,7 @@ namespace KrobotkinDiscord
 {
     class Program
     {
-        public const string VERSION = "3.1.0";
+        public const string VERSION = "3.1.1a";
 
         static void Main(string[] args) => new Program().Start();
 
@@ -30,7 +30,7 @@ namespace KrobotkinDiscord
         private void InitializeDiscordClient() {
             foreach(var token in Config.INSTANCE.bot_tokens) {
                 var client = new DiscordClient(new DiscordConfigBuilder() {
-                    ConnectionTimeout = -1,
+                    
                 }.Build());
 
                 client.UsingCommands(x => {
@@ -57,7 +57,7 @@ namespace KrobotkinDiscord
 
             client.MessageReceived += (s, e) => {
                 foreach (Module module in modules) {
-                    module.ParseMessage(e.Channel, e.Message);
+                    module.ParseMessageAsync(e.Channel, e.Message);
                 }
             };
 

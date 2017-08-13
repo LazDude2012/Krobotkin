@@ -8,6 +8,6 @@ using Discord;
 namespace KrobotkinDiscord {
     public class Module {
         public virtual void InitiateClient(DiscordClient _client) { }
-        public virtual void ParseMessage(Channel channel, Message message) { }
+        public virtual void ParseMessageAsync(Channel channel, Message message) { }
     }
 }

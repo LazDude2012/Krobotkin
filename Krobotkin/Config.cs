@@ -46,7 +46,7 @@ namespace KrobotkinDiscord {
         }
 
         public int GetPermissionLevel(User user, Server server) {
-            if (user == null) return -1; //Message was deleted too fast to grab the user usually
+            if (user == null || server == null) return -1; //Message was deleted too fast to grab the user usually
             if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
             if (user.Id == 83667364595372032) return 3; //gigi too thanks
             else {
@@ -143,9 +143,14 @@ namespace KrobotkinDiscord {
             return other.user_id == this.user_id;
         }
     }
-    public class EchoCommand
+    public class EchoCommand : IEquatable<EchoCommand>
     {
         public string challenge;
         public string response;
+        public ulong server_id;
+
+        public bool Equals(EchoCommand other) {
+            return challenge == other.challenge && server_id == other.server_id;
+        }
     }
 }

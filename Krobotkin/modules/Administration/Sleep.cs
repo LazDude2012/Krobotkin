@@ -58,7 +58,7 @@ namespace Krobotkin.Modules.Administration {
             );
         }
 
-        public override void ParseMessage(Channel channel, Message message) {
+        public override void ParseMessageAsync(Channel channel, Message message) {
             if(isUserSleeped(message.User)) {
                 message.Delete();
             }
