@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace KrobotkinDiscord {
@@ -32,9 +33,10 @@ namespace KrobotkinDiscord {
         public List<ConfigChannel> hourlyReminderChannels;
         public List<ConfigChannel> moderationLogChannels;
         public List<ConfigChannel> deletePhotoChannels;
+        public List<ConfigUser> sleepedUsers;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
-        public String bot_token;
+        public List<String> bot_tokens;
 
         public void Commit() {
             using (FileStream fs = new FileStream("config.xml", FileMode.Create)) {
@@ -44,18 +46,22 @@ namespace KrobotkinDiscord {
         }
 
         public int GetPermissionLevel(User user, Server server) {
+            if (user == null || server == null) return -1; //Message was deleted too fast to grab the user usually
             if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
             if (user.Id == 83667364595372032) return 3; //gigi too thanks
             else {
-                int ret = 0;
+                int permLevel = 0;
                 foreach (ConfigRole r in roles) {
                     if (server.GetRole(r.role_id) == null) continue;
                     else {
-                        if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > ret)
-                            ret = r.trust_level;
+                        if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > permLevel)
+                            permLevel = r.trust_level;
                     }
                 }
-                return ret;
+                if(permLevel < 2 && sleepedUsers.Contains(new ConfigUser() { user_id = user.Id })) {
+                    return -1;
+                }
+                return permLevel;
             }
         }
 
@@ -130,9 +136,21 @@ namespace KrobotkinDiscord {
         public ulong server_id;
         public ulong channel_id;
     }
-    public class EchoCommand
+    public class ConfigUser : IEquatable<ConfigUser> {
+        public ulong user_id;
+
+        public bool Equals(ConfigUser other) {
+            return other.user_id == this.user_id;
+        }
+    }
+    public class EchoCommand : IEquatable<EchoCommand>
     {
         public string challenge;
         public string response;
+        public ulong server_id;
+
+        public bool Equals(EchoCommand other) {
+            return challenge == other.challenge && server_id == other.server_id;
+        }
     }
 }

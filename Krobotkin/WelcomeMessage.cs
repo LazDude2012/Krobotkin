@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace KrobotkinDiscord {
     public static class WelcomeMessage {
-        public static void Display(User user) {
+        public static void Display(User user, DiscordClient client) {
             byte[] avatar = null;
             using (var wc = new System.Net.WebClient()) {
                 avatar = (user.AvatarUrl == null) ? null : wc.DownloadData(user.AvatarUrl);
                 if (avatar == null) {
-                    Program.DiscordClient.GetChannel(
+                    client.GetChannel(
                         (from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First()
                     ).SendMessage("Welcome new comrade" + user.Mention);
 
@@ -39,10 +39,10 @@ namespace KrobotkinDiscord {
                 ifact.Watermark(uname);
                 ifact.Save(outstream);
             }
-            Channel general = Program.DiscordClient.GetChannel((from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First());
+            Channel general = client.GetChannel((from channel in Config.INSTANCE.primaryChannels where channel.server_id == user.Server.Id select channel.channel_id).First());
             general.SendMessage("Welcome new comrade " + user.Mention);
             general.SendFile("welcome.jpg", outstream);
-            ModerationLog.LogToPublic($"User {user} joined.", Program.DiscordClient.GetServer(user.Server.Id));
+            ModerationLog.LogToPublic($"User {user} joined.", client.GetServer(user.Server.Id));
         }
     }
 }

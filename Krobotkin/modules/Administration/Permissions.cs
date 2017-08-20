@@ -15,6 +15,9 @@ namespace KrobotkinDiscord.Modules.Administration {
                     .Do(e => {
                         int perms = Config.INSTANCE.GetPermissionLevel(e.User, e.Server);
                         switch (perms) {
+                            case -1:
+                                e.User.SendMessage("You should be sleeping");
+                                break;
                             case 0:
                                 e.Channel.SendMessage("You have :couch: NORMAL USER :couch: permissions.");
                                 break;

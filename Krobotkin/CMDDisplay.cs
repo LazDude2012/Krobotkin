@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace KrobotkinDiscord {
     public static class CMDDisplay {
+        static List<ulong> connectedServers = new List<ulong>();
+
         public static void Tick() {
             var input = Console.ReadLine();
             if (input.StartsWith("info ")) {
                 var inputParams = input.Split(' ');
                 var serverid = ulong.Parse(inputParams[1]);
 
-                var server = (from serv in Program.DiscordClient.Servers where serv.Id == serverid select serv).First();
+                var server = (from serv in Program.clients.SelectMany(s => s.Servers) where serv.Id == serverid select serv).First();
 
                 Console.WriteLine($"Name: {server.Name}");
                 Console.WriteLine("Roles:");
@@ -35,16 +37,19 @@ namespace KrobotkinDiscord {
             }
         }
 
-        public static async void OnServerAvailable(object sender, ServerEventArgs e) {
-            Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
-            try {
-                Channel general = (from channel in Config.INSTANCE.primaryChannels
-                                   where channel.server_id == e.Server.Id
-                                   select Program.DiscordClient.GetChannel(channel.channel_id)
-                                  ).First();
-                await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
-            } catch (Exception) {
-                Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+        public static async void OnServerAvailable(object sender, ServerEventArgs e, DiscordClient client) {
+            if(!connectedServers.Contains(e.Server.Id)) {
+                connectedServers.Add(e.Server.Id);
+                Console.WriteLine($"Joined Server {e.Server.Name}: {e.Server.Id}");
+                try {
+                    Channel general = (from channel in Config.INSTANCE.primaryChannels
+                                       where channel.server_id == e.Server.Id
+                                       select client.GetChannel(channel.channel_id)
+                                      ).First();
+                    await general.SendMessage($"Krobotkin {Program.VERSION} initialised.");
+                } catch (Exception) {
+                    Console.WriteLine($"Failed to send greeting to {e.Server.Name}");
+                }
             }
         }
 

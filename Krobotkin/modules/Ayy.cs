@@ -7,7 +7,7 @@ using Discord;
 
 namespace KrobotkinDiscord.Modules {
     class Ayy : Module {
-        public override async void ParseMessage(Channel channel, Message message) {
+        public override async void ParseMessageAsync(Channel channel, Message message) {
             if (message.Text.ToLower() == "ayy") {
                 if (Config.INSTANCE.GetPermissionLevel(message.User, message.Server) > 0) {
                     await channel.SendIsTyping();
