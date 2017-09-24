@@ -48,7 +48,7 @@ namespace KrobotkinDiscord {
         public int GetPermissionLevel(User user, Server server) {
             if (user == null || server == null) return -1; //Message was deleted too fast to grab the user usually
             if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
-            if (user.Id == 83667364595372032) return 3; //gigi too thanks
+            if (user.Id == 312809122439626752) return 3; //gigi too thanks
             else {
                 int permLevel = 0;
                 foreach (ConfigRole r in roles) {
