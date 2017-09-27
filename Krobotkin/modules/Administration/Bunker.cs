@@ -9,8 +9,8 @@ namespace KrobotkinDiscord.Modules.Administration {
                 .Parameter("user")
                 .Description("FC Bunker Entrance only; approves user for FULLCOMM entry. Gives them the Gif and the invite, kicks them next hourly cycle.")
                 .Do(async e => {
-                    if (e.Server.Id == 248993874666586142) // bunker entrance
-                    {
+                    // if bunker entrance server
+                    if (e.Server.Id == 248993874666586142) {
                         Server fullcomm = _client.GetServer(Program.PRIMARY_SERVER_ID);
                         await e.Channel.SendIsTyping();
                         //await e.Channel.SendFile(@"C:\Users\lazdu\OneDrive\FULLCOMM SHARED\commie memes\approved.gif");
