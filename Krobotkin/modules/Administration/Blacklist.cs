@@ -16,12 +16,7 @@ namespace KrobotkinDiscord.Modules.Administration {
                 bgp.CreateCommand("print")
                 .Do(async e => {
                     await e.Channel.SendIsTyping();
-                    /*
-                    await e.Channel.SendMessage("=================[ CURRENT BLACKLIST ]===============");
-                    await e.Channel.SendMessage($"Blacklist contains {Config.INSTANCE.Blacklist.Count} words");
-                    await e.Channel.SendMessage("=====================================================");
-                    */
-
+                    
                     String line = "";
                     line += "================== CURRENT BLACKLIST ================\n";
                     line += $"   Blacklist contains {Config.INSTANCE.Blacklist.Count} words\n";
