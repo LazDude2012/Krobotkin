@@ -136,7 +136,6 @@ namespace KrobotkinDiscord.Modules {
                         sw.Write(@"
                             </div>
                             <script>
-                                
                             </script>
                         </body>
                         </html>");
