@@ -38,6 +38,11 @@ namespace KrobotkinDiscord.Modules.Administration {
                 .Parameter("word")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 1) {
+                        if (Config.INSTANCE.Blacklist.Contains(e.GetArg("word"))){
+                            e.Channel.SendMessage($"Word \"{e.Args[0]}\" already in blacklist.");
+                            return;
+                        }
+
                         Config.INSTANCE.Blacklist.Add(e.GetArg("word"));
                         ModerationLog.LogToPublic($"User {e.User} added the word {e.Args[0]} to the blacklist.", e.Server);
                         e.Channel.SendMessage($"Added \"{e.Args[0]}\" to the blacklist.");
@@ -48,9 +53,15 @@ namespace KrobotkinDiscord.Modules.Administration {
                 .Parameter("word")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 1) {
+                        if (!Config.INSTANCE.Blacklist.Contains(e.GetArg("word"))){
+                            e.Channel.SendMessage($"Word \"{e.Args[0]}\" not in blacklist.");
+                            return;
+                        }
+
                         Config.INSTANCE.Blacklist.Remove(e.Args[0]);
                         ModerationLog.LogToPublic($"User {e.User} removed the word {e.Args[0]} from the blacklist.", e.Server);
                         e.Channel.SendMessage($"Removed \"{e.Args[0]}\" from the blacklist.");
+                        Config.INSTANCE.Commit();
                     }
                 });
             });
