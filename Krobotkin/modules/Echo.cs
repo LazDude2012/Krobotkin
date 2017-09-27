@@ -48,28 +48,6 @@ namespace KrobotkinDiscord.Modules {
                         e.Channel.SendMessage("Sorry, you don't have permission to do that.");
                     }
                 });
-                egp.CreateCommand("list")
-                .Do(async e => {
-                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
-                        int progress = 1;
-                        Message compiling = await e.Channel.SendMessage($"Please wait, compiling echo list. :clock{progress}:");
-                        StreamWriter sw = new StreamWriter("echolist.html", false);
-                        sw.Write("<html>\n<body>\n<h1>ECHO LIST</h1>\n");
-                        foreach (EchoCommand ec in Config.INSTANCE.echoCommands) {
-                            if(ec.server_id == e.Server.Id) {
-                                if (ec.response.StartsWith("http")) {
-                                    sw.WriteLine($"<p>{ec.challenge} :&gt; <a href='{ec.response}'> link </a> </p><br/>");
-                                } else sw.WriteLine($"<p>{ec.challenge} :&gt; {ec.response}</p><br/>");
-                                progress = (progress == 12 ? 1 : progress + 1);
-                                await compiling.Edit($"Please wait, compiling echo list. :clock{progress}:");
-                            }
-                        }
-                        sw.Write("</body>");
-                        sw.Close();
-                        await e.Channel.SendMessage("List compiled! :robot: :tools:");
-                        await e.Channel.SendFile("echolist.html");
-                    }
-                });
                 egp.CreateCommand("remove")
                 .Parameter("challenge")
                 .Do(e => {
@@ -82,6 +60,90 @@ namespace KrobotkinDiscord.Modules {
                         }
                         e.Channel.SendMessage($"The echo {e.Args[0]} has been removed.");
                         Config.INSTANCE.Commit();
+                    }
+                });
+                egp.CreateCommand("list")
+                .Do(async e => {
+                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) >= 0) {
+                        await e.Channel.SendMessage($"Please wait, compiling echo list. :clock2:");
+
+                        // Compile echolist.html file
+                        StreamWriter sw = new StreamWriter("echolist.html", false);
+                        sw.Write(@"<!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Echo List</title>
+                            <meta charset='utf-8'>
+                            <style>
+                            html, body{
+                                margin: 0; padding: 0;
+                            }
+
+                            body{
+                                background-color: #36393E;
+                                color: #eee;
+                                font-family: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
+                            }
+
+                            h1{
+                                text-align: center;
+                            }
+
+                            a{
+                                text-decoration: none;
+                                color: #0096C5;
+                            }
+
+                            a:hover{
+                                text-decoration: underline;
+                            }
+
+                            .echos{
+                                margin: 40px auto;
+                                max-width: 1400px;
+                            }
+
+                            .echo{
+                                border-top: 1px solid #555;
+                                padding-top: 25px;
+                                margin-top: 25px;
+                            }
+
+                            .title{
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                            }
+
+                            .content{
+                                white-space: pre-wrap;
+                                color: #aaa;
+                            }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Echo List</h1>
+                            <div class='echos'>
+                        ");
+                        foreach (EchoCommand ec in Config.INSTANCE.echoCommands) {
+                            if (ec.server_id == e.Server.Id) {
+                                if (ec.response.StartsWith("http://") || ec.response.StartsWith("https://")) {
+                                    sw.WriteLine($"<div class='echo'><div class='title'>{ec.challenge}</div><div class='content'><a href='{ec.response}' target='_blank'>link</a></div></div>");
+                                } else {
+                                    sw.WriteLine($"<div class='echo'><div class='title'>{ec.challenge}</div><div class='content'>{ec.response}</div></div>");
+                                }
+                            }
+                        }
+                        sw.Write(@"
+                            </div>
+                            <script>
+                                
+                            </script>
+                        </body>
+                        </html>");
+                        sw.Close();
+
+                        await e.Channel.SendMessage("List compiled! :robot: :tools:");
+                        await e.Channel.SendFile("echolist.html");
                     }
                 });
             });
