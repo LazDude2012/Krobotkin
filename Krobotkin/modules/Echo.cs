@@ -91,7 +91,7 @@ namespace KrobotkinDiscord.Modules {
 
                             a{
                                 text-decoration: none;
-                                color: #0096C5;
+                                color: #46B7E4;
                             }
 
                             a:hover{
