@@ -33,6 +33,7 @@ namespace KrobotkinDiscord {
         public List<ConfigChannel> hourlyReminderChannels;
         public List<ConfigChannel> moderationLogChannels;
         public List<ConfigChannel> deletePhotoChannels;
+        public List<ConfigChannel> echoTopicChannels;
         public List<ConfigUser> sleepedUsers;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
