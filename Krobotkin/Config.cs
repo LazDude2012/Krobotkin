@@ -29,6 +29,7 @@ namespace KrobotkinDiscord {
         }
         public List<String> Blacklist;
         public List<ConfigRole> roles;
+        public List<SelfAssignRole> selfAssignRoles;
         public List<ConfigChannel> primaryChannels;
         public List<ConfigChannel> hourlyReminderChannels;
         public List<ConfigChannel> moderationLogChannels;
@@ -126,8 +127,7 @@ namespace KrobotkinDiscord {
             };
         #endregion unicode_dictionary
     }
-    public class ConfigRole
-    {
+    public class ConfigRole {
         public string name;
         public ulong server_id; 
         public ulong role_id;
@@ -144,8 +144,7 @@ namespace KrobotkinDiscord {
             return other.user_id == this.user_id;
         }
     }
-    public class EchoCommand : IEquatable<EchoCommand>
-    {
+    public class EchoCommand : IEquatable<EchoCommand> {
         public string challenge;
         public string response;
         public ulong server_id;
@@ -153,5 +152,9 @@ namespace KrobotkinDiscord {
         public bool Equals(EchoCommand other) {
             return challenge == other.challenge && server_id == other.server_id;
         }
+    }
+    public class SelfAssignRole {
+        public ulong server_id;
+        public ulong role_id;
     }
 }
