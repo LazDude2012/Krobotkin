@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
 using System.Timers;
+using Discord;
+
 
 namespace KrobotkinDiscord.Modules {
     class HourlyTimer : Module, IDisposable {

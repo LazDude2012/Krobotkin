@@ -38,6 +38,9 @@ namespace KrobotkinDiscord.Modules.Administration {
                 .Parameter("word")
                 .Do(e => {
                     if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > 1) {
+                        //String word = e.GetArg("word");
+                        //bool is_pattern = word.StartsWith("/") && word.EndsWith("/");
+                        
                         if (Config.INSTANCE.Blacklist.Contains(e.GetArg("word"))){
                             e.Channel.SendMessage($"Word \"{e.Args[0]}\" already in blacklist.");
                             return;
