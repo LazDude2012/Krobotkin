@@ -13,7 +13,7 @@ namespace KrobotkinDiscord {
                 await cabal.SendMessage($"``` {logMessage} ```");
             }
             catch {
-                Console.WriteLine($"Failed to log message {logMessage} on {server}");
+                Console.WriteLine($"[!] {logMessage} on {server}");
             }
         }
     }
