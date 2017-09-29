@@ -9,6 +9,8 @@ using Discord.Commands;
 
 namespace KrobotkinDiscord.Modules {
     public class AssignableRoles : Module {
+        private const int MAX_ROLES = 250;
+
         private Timer removeMessagesTimer = new Timer();
         private List<Message> msgsToRemove = new List<Message>();
 
@@ -31,7 +33,7 @@ namespace KrobotkinDiscord.Modules {
                             roleString += $"`{role.Name}`" + (i == e.Server.RoleCount-1 ? "" : ", ");
                         }
 
-                        e.Channel.SendMessage($"Server roles:\n{roleString}");
+                        e.Channel.SendMessage($"Server roles ({e.Server.RoleCount}/{MAX_ROLES}):\n{roleString}");
                     } else {
                         e.Channel.SendMessage("Sorry, you don't have permission to do that.");
                     }
