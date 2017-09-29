@@ -209,7 +209,7 @@ namespace KrobotkinDiscord.Modules {
 
         private async void MessageChecker(object sender, ElapsedEventArgs e, DiscordClient client) {
             if (msgsToRemove.Count == 0) return;
-
+            
             List<Message> toRemove = new List<Message>();
             foreach (Message m in msgsToRemove){
                 int diff = (DateTime.UtcNow - m.Timestamp.ToUniversalTime()).Seconds;
