@@ -183,7 +183,7 @@ namespace KrobotkinDiscord.Modules {
                     }
 
                     // remove role from being self-assignable
-                    foreach(SelfAssignRole r in Config.INSTANCE.selfAssignRoles){
+                    foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
                         if (r.server_id == e.Server.Id && r.role_id == role.Id) {
                             Config.INSTANCE.selfAssignRoles.Remove(r);
                             e.Channel.SendMessage($"Role `{roleName}` is no longer self-assignable.");
@@ -203,14 +203,14 @@ namespace KrobotkinDiscord.Modules {
                     SortedDictionary<String, List<Role>> groups = new SortedDictionary<String, List<Role>>();
 
                     // compile all self-assignable roles by group
-                    foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles){
+                    foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
                         // only roles on this server
                         if (r.server_id == e.Server.Id) {
                             // get valid role
                             Role role = e.Server.GetRole(r.role_id);
                             if (role == null) continue;
                             saRoleCount++;
-                            
+
                             // create group list if it doesn't exist
                             if (!groups.ContainsKey(r.group)) {
                                 groups.Add(r.group, new List<Role>());
@@ -325,6 +325,39 @@ namespace KrobotkinDiscord.Modules {
                             }
                             break;
                         }
+                    }
+                });
+
+                egp.CreateCommand("renamegroup")
+                .Description("Rename a group containing self-assignable roles.")
+                .Parameter("current")
+                .Parameter("new")
+                .Do(e => {
+                    // check permissions
+                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) < 2) {
+                        e.Channel.SendMessage("Sorry, you don't have permission to do that.");
+                        return;
+                    }
+
+                    String currName = e.GetArg("current").ToLower();
+                    String newName = e.GetArg("new").ToLower();
+
+                    // change group property on matching roles
+                    int foundRoles = 0;
+                    foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
+                        if (r.group == currName) {
+                            r.group = newName;
+                            foundRoles++;
+                        }
+                    }
+
+                    // save changes
+                    if (foundRoles > 0) {
+                        e.Channel.SendMessage($"Group `{currName}` renamed to `{newName}`.");
+                        ModerationLog.LogToPublic($"User {e.User.Name} renamed role group {currName} to {newName}", e.Server);
+                        Config.INSTANCE.Commit();
+                    } else {
+                        e.Channel.SendMessage($"Group `{currName}` does not exist.");
                     }
                 });
             });
