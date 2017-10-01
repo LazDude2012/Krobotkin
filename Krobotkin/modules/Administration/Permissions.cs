@@ -36,15 +36,52 @@ namespace KrobotkinDiscord.Modules.Administration {
                 pgp.CreateCommand("set")
                     .Parameter("role")
                     .Parameter("level")
-                    .Description("Sets a user's permission level.")
+                    .Description("Sets a role's permission level.")
                     .Do(e => {
-                        if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) > Int32.Parse(e.GetArg("level"))) {
-                            Role r = e.Server.FindRoles(e.GetArg("role")).First();
-                            foreach (ConfigRole cr in Config.INSTANCE.roles) {
-                                if (cr.role_id == r.Id) cr.trust_level = Int32.Parse(e.GetArg("level"));
+                        int level = Int32.Parse(e.GetArg("level"));
+                        int userLevel = Config.INSTANCE.GetPermissionLevel(e.User, e.Server);
+
+                        if (userLevel >= 2) {
+                            // user permission level check
+                            if (userLevel <= level) {
+                                e.Channel.SendMessage($"You cannot alter permission levels at or above your own level ({userLevel}).");
+                                return;
                             }
+
+                            // check that role exists
+                            String roleName = e.GetArg("role");
+                            Role r = e.Server.FindRoles(roleName).FirstOrDefault();
+                            if (r == null) {
+                                e.Channel.SendMessage($"Role `{roleName}` does not exist.");
+                                return;
+                            }
+
+                            // find role and set permission level
+                            bool roleFound = false;
+                            foreach (ConfigRole cr in Config.INSTANCE.roles) {
+                                if (cr.role_id == r.Id) {
+                                    cr.trust_level = level;
+                                    roleFound = true;
+                                    break;
+                                }
+                            }
+
+                            // if role doesn't exist, create it and set permission level
+                            if (!roleFound) {
+                                ConfigRole newRole = new ConfigRole {
+                                    server_id = e.Server.Id,
+                                    role_id = r.Id,
+                                    trust_level = level
+                                };
+                                Config.INSTANCE.roles.Add(newRole);
+                            }
+
+                            // save changes
+                            e.Channel.SendMessage($"Permission level for role `{roleName}` set to {level}.");
+                            Config.INSTANCE.Commit();
+                        } else {
+                            e.Channel.SendMessage("Sorry, you don't have permission to do that.");
                         }
-                        Config.INSTANCE.Commit();
                     }
                 );
             });
