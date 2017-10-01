@@ -108,7 +108,7 @@ namespace KrobotkinDiscord.Modules {
 
             _client.GetService<CommandService>().CreateGroup("aroles", egp => {
                 egp.CreateCommand("add")
-                .Description("Makes a role self-assignable.")
+                .Description("Makes a role self-assignable, optionally adding it to a group.")
                 .Parameter("role")
                 .Parameter("group", ParameterType.Optional)
                 .Do(e => {
@@ -231,7 +231,7 @@ namespace KrobotkinDiscord.Modules {
                 });
 
                 egp.CreateCommand("setgroup")
-                .Description("Create group to organize self-assignable roles in.")
+                .Description("Add a self-assignable role to a group for organization.")
                 .Parameter("role")
                 .Parameter("group")
                 .Do(e => {
@@ -278,7 +278,7 @@ namespace KrobotkinDiscord.Modules {
 
                 egp.CreateCommand("removegroup")
                 .Alias("unsetgroup")
-                .Description("Create group to organize self-assignable roles in.")
+                .Description("Remove a self-assignable role from a group.")
                 .Parameter("role", ParameterType.Multiple)
                 .Do(e => {
                     // check permissions
@@ -320,12 +320,14 @@ namespace KrobotkinDiscord.Modules {
             });
         }
 
+        // send command feedback message
         private async void GiveFeedback(CommandEventArgs e, String msg){
             Message m = await e.Channel.SendMessage($"{e.User.Mention} - {msg}");
             msgsToRemove.Add(e.Message);
             msgsToRemove.Add(m);
         }
 
+        // delete command feedback messages
         private async void MessageChecker(object sender, ElapsedEventArgs e, DiscordClient client) {
             if (msgsToRemove.Count == 0) return;
             
