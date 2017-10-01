@@ -21,6 +21,16 @@ namespace KrobotkinDiscord.Modules {
             removeMessagesTimer.AutoReset = true;
             removeMessagesTimer.Start();
 
+            // check any outdated self-assignable roles without "group" properties
+            int rolesFound = 0;
+            foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
+                if (String.IsNullOrEmpty(r.group)) {
+                    r.group = "";
+                    rolesFound++;
+                }
+            }
+            if (rolesFound > 0) Config.INSTANCE.Commit();
+
             // set up commands
             _client.GetService<CommandService>().CreateCommand("roles")
                 .Description("Prints out all server roles.")
@@ -140,7 +150,7 @@ namespace KrobotkinDiscord.Modules {
                         role_id = role.Id,
                         group = groupName
                     };
-                    String groupText = groupName.Length == 0 ? "." : $" (added to group \"{groupName}\")";
+                    String groupText = String.IsNullOrEmpty(groupName) ? "." : $" (added to group \"{groupName}\")";
                     Config.INSTANCE.selfAssignRoles.Add(newRole);
                     e.Channel.SendMessage($"Role `{roleName}` is now self-assignable{groupText}");
                     ModerationLog.LogToPublic($"User {e.User.Name} made role {roleName} self-assignable", e.Server);
@@ -260,7 +270,7 @@ namespace KrobotkinDiscord.Modules {
                     // set role group
                     foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
                         if (r.server_id == e.Server.Id && r.role_id == role.Id) {
-                            if (r.group.Length == 0) {
+                            if (String.IsNullOrEmpty(r.group)) {
                                 // add new group to role
                                 e.Channel.SendMessage($"Role `{roleName}` added to group `{groupName}`.");
                                 ModerationLog.LogToPublic($"User {e.User.Name} added role {roleName} to group {groupName}", e.Server);
@@ -305,7 +315,7 @@ namespace KrobotkinDiscord.Modules {
                     // remove role group
                     foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
                         if (r.server_id == e.Server.Id && r.role_id == role.Id) {
-                            if (r.group.Length == 0) {
+                            if (String.IsNullOrEmpty(r.group)) {
                                 e.Channel.SendMessage($"Role `{roleName}` already not in any group.");
                             } else {
                                 e.Channel.SendMessage($"Role `{roleName}` removed from group `{r.group}`.");
