@@ -196,11 +196,13 @@ namespace KrobotkinDiscord.Modules {
 
                 egp.CreateCommand("print")
                 .Description("Prints all self-assignable roles.")
+                .Parameter("group", ParameterType.Optional)
                 .Do(e => {
                     // print all self-assignable roles
                     String roleString = "";
                     int saRoleCount = 0;
                     SortedDictionary<String, List<Role>> groups = new SortedDictionary<String, List<Role>>();
+                    String groupFilter = e.GetArg("group");
 
                     // compile all self-assignable roles by group
                     foreach (SelfAssignRole r in Config.INSTANCE.selfAssignRoles) {
@@ -209,7 +211,11 @@ namespace KrobotkinDiscord.Modules {
                             // get valid role
                             Role role = e.Server.GetRole(r.role_id);
                             if (role == null) continue;
-                            saRoleCount++;
+
+                            // if group filter specified, exclude all roles not belonging to that group
+                            if (!String.IsNullOrEmpty(groupFilter) && r.group != groupFilter) {
+                                continue;
+                            }
 
                             // create group list if it doesn't exist
                             if (!groups.ContainsKey(r.group)) {
@@ -226,6 +232,7 @@ namespace KrobotkinDiscord.Modules {
                         String groupName = group.Key == "" ? "Ungrouped" : group.Key;
                         roleString += $"```{groupName} ({group.Value.Count}):\n";
                         for (int i = 0; i < group.Value.Count; i++) {
+                            saRoleCount++;
                             Role role = group.Value.ElementAt(i);
                             roleString += $"{role.Name}" + (i == group.Value.Count - 1 ? "" : ", ");
                         }
@@ -234,7 +241,20 @@ namespace KrobotkinDiscord.Modules {
 
                     // print message
                     if (saRoleCount > 0) {
-                        e.Channel.SendMessage($"Self-assignable roles:\n{roleString}");
+                        roleString = "Self-assignable roles" + (String.IsNullOrEmpty(groupFilter) ? ":\n" : $" in group `{groupFilter}`:\n") + roleString;
+                        roleString += "\nThe above roles are self-assignable using the commands:\n";
+                        roleString += "`!iam [role]`    -- assigns a role\n";
+                        roleString += "`!iamn [role]`   -- removes a role";
+
+                        if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) < 2) {
+                            // feedback messages to non-mods are temporary
+                            GiveFeedback(e, roleString);
+                        } else {
+                            // feedback messages to mods are regular messages
+                            e.Channel.SendMessage(roleString);
+                        }
+                    } else if (!String.IsNullOrEmpty(groupFilter)) {
+                        GiveFeedback(e, $"There are no self-assignable roles in group `{groupFilter}`.");
                     } else {
                         GiveFeedback(e, "There are no self-assignable roles on this server.");
                     }
