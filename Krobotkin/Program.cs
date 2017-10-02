@@ -6,7 +6,7 @@ using Discord.Commands;
 
 namespace KrobotkinDiscord {
     class Program {
-        public const string VERSION = "3.2.0";
+        public const string VERSION = "3.2.1";
 
         public static List<ulong> UsersToKickFromBunker = new List<ulong>();
         public static List<DiscordClient> clients = new List<DiscordClient>();
