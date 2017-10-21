@@ -45,7 +45,7 @@ namespace KrobotkinDiscord.Modules {
                     String roleString = "```";
                     for (int i = 0; i < e.Server.RoleCount; i++){
                         Role role = e.Server.Roles.ElementAt(i);
-                        roleString += $"{role.Name}" + (i == e.Server.RoleCount-1 ? "" : ", ");
+                        roleString += role.Name + (i == e.Server.RoleCount-1 ? "" : ", ");
                     }
                     roleString += "```";
 
