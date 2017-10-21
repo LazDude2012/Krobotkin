@@ -11,9 +11,9 @@ namespace KrobotkinDiscord {
             try {
                 Channel cabal = server.GetChannel((from channel in Config.INSTANCE.moderationLogChannels where channel.server_id == server.Id select channel).First().channel_id);
                 await cabal.SendMessage($"``` {logMessage} ```");
-            }
-            catch {
-                Console.WriteLine($"Failed to log message {logMessage} on {server}");
+            } catch {
+                // failed to find channel to log message in -- print to console
+                Console.WriteLine($"[!] {logMessage} on {server}");
             }
         }
     }

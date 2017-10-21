@@ -104,6 +104,7 @@
     <Compile Include="Modules\Administration\Sleep.cs" />
     <Compile Include="Modules\Administration\UserManagement.cs" />
     <Compile Include="Modules\Aesthetic.cs" />
+    <Compile Include="Modules\AssignableRoles.cs" />
     <Compile Include="Modules\Ayy.cs" />
     <Compile Include="Modules\Blacklist.cs" />
     <Compile Include="Modules\Corpus.cs" />

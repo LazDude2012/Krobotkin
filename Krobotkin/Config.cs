@@ -29,10 +29,12 @@ namespace KrobotkinDiscord {
         }
         public List<String> Blacklist;
         public List<ConfigRole> roles;
+        public List<SelfAssignRole> selfAssignRoles;
         public List<ConfigChannel> primaryChannels;
         public List<ConfigChannel> hourlyReminderChannels;
         public List<ConfigChannel> moderationLogChannels;
         public List<ConfigChannel> deletePhotoChannels;
+        public List<ConfigChannel> echoTopicChannels;
         public List<ConfigUser> sleepedUsers;
         public List<EchoCommand> echoCommands;
         public List<String> hourlyReminders;
@@ -49,16 +51,17 @@ namespace KrobotkinDiscord {
             if (user == null || server == null) return -1; //Message was deleted too fast to grab the user usually
             if (user.Id == 159017676662898696) return 3; //laz always gets highest powers
             if (user.Id == 312809122439626752) return 3; //gigi too thanks
+            if (user.Id == 162778001094868992) return 3; //tully too thanks
             else {
                 int permLevel = 0;
                 foreach (ConfigRole r in roles) {
-                    if (server.GetRole(r.role_id) == null) continue;
-                    else {
-                        if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > permLevel)
-                            permLevel = r.trust_level;
+                    if (server.GetRole(r.role_id) == null) {
+                        continue;
+                    }  else if (user.HasRole(server.GetRole(r.role_id)) && r.trust_level > permLevel) {
+                        permLevel = r.trust_level;
                     }
                 }
-                if(permLevel < 2 && sleepedUsers.Contains(new ConfigUser() { user_id = user.Id })) {
+                if (permLevel < 2 && sleepedUsers.Contains(new ConfigUser() { user_id = user.Id })) {
                     return -1;
                 }
                 return permLevel;
@@ -125,10 +128,9 @@ namespace KrobotkinDiscord {
             };
         #endregion unicode_dictionary
     }
-    public class ConfigRole
-    {
+    public class ConfigRole {
         public string name;
-        public ulong server_id; 
+        public ulong server_id;
         public ulong role_id;
         public int trust_level; //0 for users, 1 for trusted users, 2 for mods
     }
@@ -143,8 +145,7 @@ namespace KrobotkinDiscord {
             return other.user_id == this.user_id;
         }
     }
-    public class EchoCommand : IEquatable<EchoCommand>
-    {
+    public class EchoCommand : IEquatable<EchoCommand> {
         public string challenge;
         public string response;
         public ulong server_id;
@@ -152,5 +153,10 @@ namespace KrobotkinDiscord {
         public bool Equals(EchoCommand other) {
             return challenge == other.challenge && server_id == other.server_id;
         }
+    }
+    public class SelfAssignRole {
+        public ulong server_id;
+        public ulong role_id;
+        public string group;
     }
 }

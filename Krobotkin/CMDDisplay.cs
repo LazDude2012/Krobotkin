@@ -10,7 +10,9 @@ namespace KrobotkinDiscord {
         static List<ulong> connectedServers = new List<ulong>();
 
         public static void Tick() {
-            var input = Console.ReadLine();
+            // get user input from console
+            String input = Console.ReadLine();
+
             if (input.StartsWith("info ")) {
                 var inputParams = input.Split(' ');
                 var serverid = ulong.Parse(inputParams[1]);
