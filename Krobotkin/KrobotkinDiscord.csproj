@@ -111,6 +111,7 @@
     <Compile Include="Modules\Administration\Debug.cs" />
     <Compile Include="Modules\Echo.cs" />
     <Compile Include="Modules\HourlyTimer.cs" />
+    <Compile Include="Modules\ImageDeleter.cs" />
     <Compile Include="Modules\Memeball.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
