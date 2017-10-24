@@ -28,6 +28,7 @@ namespace KrobotkinDiscord {
                             timer.Dispose();
                         };
                         timer.Start();
+                        Timers.Add(timer);
                     }
                 }
             }
