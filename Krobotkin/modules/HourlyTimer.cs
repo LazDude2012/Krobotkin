@@ -120,20 +120,6 @@ namespace KrobotkinDiscord.Modules {
         }
 
         private async void HourlyTimer_Elapsed(object sender, ElapsedEventArgs e, DiscordClient client) {
-            // Delete photos (hourly)
-            foreach (Channel photoDeleteChannel in (from channel in Config.INSTANCE.deletePhotoChannels select client.GetChannel(channel.channel_id))) {
-                if (photoDeleteChannel != null) {
-                    Message[] buffer = await photoDeleteChannel.DownloadMessages(100);
-                    int messagesRemoved = 0;
-                    foreach (Message m in buffer) {
-                        if (m.Attachments.Length != 0) {
-                            await m.Delete();
-                            messagesRemoved++;
-                        }
-                    }
-                    if (messagesRemoved != 0) ModerationLog.LogToPublic($"Hourly purge of selfies removed {messagesRemoved} messages.", photoDeleteChannel.Server);
-                }
-            }
 
             // Reminders (hourly)
             foreach (Channel channel in from reminderChannel in Config.INSTANCE.hourlyReminderChannels
