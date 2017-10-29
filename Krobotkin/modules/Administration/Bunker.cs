@@ -7,17 +7,25 @@ namespace KrobotkinDiscord.Modules.Administration {
         public override void InitiateClient(DiscordClient _client) {
             _client.GetService<CommandService>().CreateCommand("approve")
                 .Parameter("user")
-                .Description("FC Bunker Entrance only; approves user for FULLCOMM entry. Gives them the Gif and the invite, kicks them next hourly cycle.")
+                .Description("Bunker Entrance server only; approves user for entry to main server. Gives the invite, kicks them next hourly cycle.")
                 .Do(async e => {
                     // if bunker entrance server
                     if (e.Server.Id == 248993874666586142) {
-                        Server fullcomm = _client.GetServer(Program.PRIMARY_SERVER_ID);
-                        await e.Channel.SendIsTyping();
-                        //await e.Channel.SendFile(@"C:\Users\lazdu\OneDrive\FULLCOMM SHARED\commie memes\approved.gif");
-                        Invite inv = await fullcomm.CreateInvite(maxUses: 1);
-                        await e.Message.MentionedUsers.First().SendMessage(inv.Url);
-                        await e.User.SendMessage(inv.Url);
-                        Program.UsersToKickFromBunker.Add(e.Message.MentionedUsers.First().Id);
+                        Server main_server = _client.GetServer(Program.PRIMARY_SERVER_ID);
+                        User invUser = e.Message.MentionedUsers.FirstOrDefault();
+                        if (invUser == null) return;
+
+                        // generate invite link
+                        Invite inv = await main_server.CreateInvite(maxUses: 1);
+                        string invUrl = inv.Url.Replace("g//", "g/");
+
+                        // send invite messages
+                        await invUser.SendMessage(invUrl);
+                        await e.User.SendMessage(invUrl);
+                        await e.Channel.SendMessage($"{invUser.Mention} - server invite sent, please check your DMs.");
+
+                        // not currently implemented
+                        //Program.UsersToKickFromBunker.Add(e.Message.MentionedUsers.First().Id);
                     }
                 }
             );
