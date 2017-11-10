@@ -16,14 +16,14 @@ namespace KrobotkinDiscord {
             }
         }
 
-        public override async void ParseMessageAsync(Channel channel, Message message) {
+        public override void ParseMessageAsync(Channel channel, Message message) {
             if (message.Attachments.Count() > 0) {
                 foreach (var configChannel in Config.INSTANCE.deletePhotoChannels) {
                     if (message.Channel.Id == configChannel.channel_id && message.Server.Id == configChannel.server_id) {
                         var timer = new Timer();
                         timer.Interval = 1000 * 60 * 60; // 1 hour
-                        timer.Elapsed += (sender, e) => {
-                            message.Delete();
+                        timer.Elapsed += async (sender, e) => {
+                            await message.Delete();
                             Timers.Remove(timer);
                             timer.Dispose();
                         };
