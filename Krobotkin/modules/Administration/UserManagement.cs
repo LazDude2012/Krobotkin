@@ -56,7 +56,41 @@ namespace KrobotkinDiscord.Modules.Administration {
                 }
             );
 
-            _client.GetService<CommandService>().CreateCommand("lobby")
+            _client.GetService<CommandService>().CreateCommand("verify")
+                .Alias("timeout")
+                .Description("Gives a user the `verified` role if it exists on the server.")
+                .Parameter("user")
+                .Do(e => {
+                    // check permissions
+                    if (Config.INSTANCE.GetPermissionLevel(e.User, e.Server) < 2) {
+                        e.Channel.SendMessage("Sorry, you don't have permission to do that.");
+                        return;
+                    }
+
+                    Role role = e.Server.FindRoles("verified", true).FirstOrDefault();
+                    if (role == null) {
+                        e.Channel.SendMessage("Verify command requires a `verified` server role.");
+                        return;
+                    }
+
+                    // get user
+                    User user = e.Message.MentionedUsers.FirstOrDefault();
+                    if (user == null) {
+                        e.Channel.SendMessage("Command usage: !verify @username");
+                        return;
+                    }
+
+                    // check if already verified
+                    if (user.HasRole(role)) {
+                        e.Channel.SendMessage("User is already verified.");
+                        return;
+                    }
+
+                    // give user role
+                    user.AddRoles(role);
+                });
+
+                    _client.GetService<CommandService>().CreateCommand("lobby")
                 .Alias("timeout")
                 .Description("Removes a user's roles, which can be reassigned with !unlobby.")
                 .Parameter("user")
